@@ -22,22 +22,50 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * TODO
+ * A {@link Subsystem} that loads properties for use within an application. This should be the
+ * first subsystem that is used, once started properties can be accessed statically using
+ * {@link PropertyUtil}.
  * <p>
- * - check System.Property, arg, default
- * - load file, resource
+ * Properties are loaded from one or more files that are defined using a System property with key
+ * {@link PropSubsystem#CONFIG_KEY} or a command line argument like
+ * <i>config=config.properties</i>.
+ * The System property will override the argument.
  * <p>
- * java my_app config=A
- * java my_app config=A,B
- * java my_app -Dconfig=A
- * java my_app -Dconfig=A,B
+ * You can define a single property file, a comma separated list or a directory that contains
+ * multiple *.properties files. Note that property file names should contain characters that are
+ * alphanumeric or -_. (hyphen, underscore, dot).
+ * <p> Command line usage using arguments is as follows:
+ * <pre>
+ *      java MyApp config=prop1.properties
+ *      java MyApp config=prop1.properties,prop2.properties
+ *      java MyApp config=config_dir/
+ * </pre>
+ * <p>
+ * Property files will be loaded first as regular files in the filesystem, if they don't exist they
+ * will be loaded as internally packaged resources, if they don't exist it will attempt an
+ * internally packaged <i>config.properties</i> resource.
+ * <p>
+ * Loaded properties are stripped of leading/trailing whitespace and properties with duplicate keys
+ * will cause an {@link IllegalArgumentException}. While loading properties a System property with
+ * the same key will override a property defined in a file - this allows you to override a property
+ * using command line.
+ * <p>
+ * You can optionally log all loaded properties and exclude values where keys contain defined
+ * {@link String}s by defining these properties
+ * {@link PropSubsystem#PROP_KEY_LOG_PROP_VALUES_AFTER_LOAD} and
+ * {@link PropSubsystem#PROP_KEY_EXCLUDE_PROP_LOG_FOR_KEYS_CONTAINING_CSV}.
+ * <p>
+ * Most applications would find it beneficial to define the properties like this:
+ * <pre>
+ * com.webotech.service.PropSubsystem.logPropValuesAfterLoad=true
+ * com.webotech.service.PropSubsystem.excludePropLogForKeysContainingCsv=secret,password,passwd,credential
+ * </pre>
  */
 public class PropSubsystem<C extends AppContext<?>> implements Subsystem<C> {
 
   private static final Logger logger = LogManager.getLogger(PropSubsystem.class);
-  private static final String CONFIG_KEY = "config";
+  public static final String CONFIG_KEY = "config";
   private static final String EXCL_REGEX_PATTERN = "(?i).*%s.*";
-  //TODO javadoc has to say that property file names should contain characters that are alphanumeric or [-_.]
   final static Pattern csvSysPattern = Pattern.compile(
       "^([a-zA-Z0-9\\.\\-_" + Pattern.quote(File.separator) + "]*)\\,+([a-zA-Z0-9\\\\."
           + Pattern.quote(File.separator) + "]*)$");
