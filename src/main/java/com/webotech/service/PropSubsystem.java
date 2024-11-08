@@ -46,7 +46,7 @@ import org.apache.logging.log4j.Logger;
  * internally packaged <i>config.properties</i> resource.
  * <p>
  * Loaded properties are stripped of leading/trailing whitespace and properties with duplicate keys
- * will cause an {@link IllegalArgumentException}. While loading properties a System property with
+ * will cause an {@link IllegalStateException}. While loading properties a System property with
  * the same key will override a property defined in a file - this allows you to override a property
  * using command line.
  * <p>

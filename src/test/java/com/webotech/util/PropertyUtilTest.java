@@ -30,6 +30,13 @@ class PropertyUtilTest {
   }
 
   @Test
+  void shouldLoadAllPropFilesFromResourceDir() {
+    PropertyUtil.loadPAllropertyResources("happy/");
+    assertEquals(Map.of("prop1", "value1", "prop2", "value2", "prop3", "value3", "prop4", "value4"),
+        PropertyUtil.getProperties());
+  }
+
+  @Test
   void shouldLoadPropsFromResource() {
     PropertyUtil.loadPropertyResources("test1.properties");
     Map<String, String> props = PropertyUtil.getProperties();

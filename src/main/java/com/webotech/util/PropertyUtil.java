@@ -10,6 +10,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -68,10 +69,27 @@ public final class PropertyUtil {
   }
 
   /**
+   * Loads properties from all *.properties resources in resourceDir.
+   */
+  public static void loadPAllropertyResources(String resourceDir) {
+    try {
+      Path resourcePath = Path.of(
+          PropertyUtil.class.getClassLoader().getResource(resourceDir).toURI());
+      if (Files.isDirectory(resourcePath)) {
+        loadProperiesFilesFromDir(resourcePath);
+      } else {
+        throw new IllegalArgumentException("[" + resourceDir + "] is not a resource directory");
+      }
+    } catch (URISyntaxException e) {
+      throw new IllegalStateException(e);
+    }
+  }
+
+  /**
    * Loads properties from one or more files.
    */
   public static void loadPropertyFiles(String... propertyFiles) {
-    logger.info("Loading properties in files [{}]", Arrays.toString(propertyFiles));
+    logger.info("Loading properties in files {}", Arrays.toString(propertyFiles));
     for (String propertyFile : propertyFiles) {
       Path propertyPath = Paths.get(propertyFile);
       if (Files.isRegularFile(propertyPath)) {
@@ -93,12 +111,7 @@ public final class PropertyUtil {
     logger.info("Loading all .properties files in directory [{}]", propertyDir);
     Path dir = Paths.get(propertyDir);
     if (Files.isDirectory(dir)) {
-      try (Stream<Path> list = Files.list(dir)) {
-        list.filter(f -> Files.isRegularFile(f) && f.toString().endsWith(PROPERTIES_EXT))
-            .forEach(f -> loadPropertyFiles(f.toString()));
-      } catch (IOException e) {
-        throw new IllegalStateException(e);
-      }
+      loadProperiesFilesFromDir(dir);
     } else {
       throw new IllegalArgumentException("Expect a directory with *.properties files in it");
     }
@@ -181,6 +194,15 @@ public final class PropertyUtil {
       return prev;
     }
     return null;
+  }
+
+  private static void loadProperiesFilesFromDir(Path dir) {
+    try (Stream<Path> list = Files.list(dir)) {
+      list.filter(f -> Files.isRegularFile(f) && f.toString().endsWith(PROPERTIES_EXT))
+          .forEach(f -> loadPropertyFiles(f.toString()));
+    } catch (IOException e) {
+      throw new IllegalStateException(e);
+    }
   }
 
   private static void checkPropertiesOnce() {
