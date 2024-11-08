@@ -9,6 +9,8 @@ import com.webotech.statemachine.service.api.Subsystem;
 import com.webotech.util.ArgUtil;
 import com.webotech.util.PropertyUtil;
 import java.io.File;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -66,17 +68,11 @@ public class PropSubsystem<C extends AppContext<?>> implements Subsystem<C> {
   private static final Logger logger = LogManager.getLogger(PropSubsystem.class);
   public static final String CONFIG_KEY = "config";
   private static final String EXCL_REGEX_PATTERN = "(?i).*%s.*";
-  final static Pattern csvSysPattern = Pattern.compile(
+  final static Pattern csvPropPattern = Pattern.compile(
       "^([a-zA-Z0-9\\.\\-_" + Pattern.quote(File.separator) + "]*)\\,+([a-zA-Z0-9\\\\."
           + Pattern.quote(File.separator) + "]*)$");
-  final static Pattern sysPattern = Pattern.compile(
+  final static Pattern propPattern = Pattern.compile(
       "^([a-zA-Z0-9\\.\\-_" + Pattern.quote(File.separator) + "]*)$");
-  final static Pattern csvArgPattern = Pattern.compile(
-      "^" + CONFIG_KEY + "\\=([a-zA-Z0-9\\.\\-_" + Pattern.quote(File.separator)
-          + "]*)\\,+([a-zA-Z0-9\\\\." + Pattern.quote(File.separator) + "]*)$");
-  final static Pattern argPattern = Pattern.compile(
-      "^" + CONFIG_KEY + "\\=([a-zA-Z0-9\\.\\-_" + Pattern.quote(File.separator) + "]*)$");
-  //TODO should these be public? They should be talked about in javadoc
   public static final String PROP_KEY_LOG_PROP_VALUES_AFTER_LOAD = "com.webotech.service.PropSubsystem.logPropValuesAfterLoad";
   public static final String PROP_KEY_EXCLUDE_PROP_LOG_FOR_KEYS_CONTAINING_CSV = "com.webotech.service.PropSubsystem.excludePropLogForKeysContainingCsv";
 
@@ -122,15 +118,32 @@ public class PropSubsystem<C extends AppContext<?>> implements Subsystem<C> {
           PropertyUtil.loadPropertyFiles(file);
         }
       } else {
-        PropertyUtil.loadPropertyResources(file);
+        if (isResourceDir(file)) {
+          PropertyUtil.loadAllPropertyResources(file);
+        } else {
+          PropertyUtil.loadPropertyResources(file);
+        }
       }
     }
   }
 
+  private static boolean isResourceDir(String resource) {
+    URL resourceUrl = PropSubsystem.class.getClassLoader().getResource(resource);
+    if (resourceUrl != null) {
+      try {
+        Path resourcePath = Path.of(resourceUrl.toURI());
+        return Files.isDirectory(resourcePath);
+      } catch (URISyntaxException e) {
+        // ignore
+      }
+    }
+    return false;
+  }
+
   private static <C extends AppContext<?>> List<String> determinePropFiles(String[] initArgs) {
-    List<String> propFiles = parse(System.getProperty(CONFIG_KEY), true);
+    List<String> propFiles = parse(System.getProperty(CONFIG_KEY));
     if (propFiles.isEmpty()) {
-      propFiles = parse(ArgUtil.getArgValue(initArgs, CONFIG_KEY), false);
+      propFiles = parse(ArgUtil.getArgValue(initArgs, CONFIG_KEY));
     }
     if (propFiles.isEmpty()) {
       propFiles.add("config.properties");
@@ -144,12 +157,12 @@ public class PropSubsystem<C extends AppContext<?>> implements Subsystem<C> {
     PropertyUtil.getProperties().keySet().forEach(PropertyUtil::removeProperty);
   }
 
-  static List<String> parse(String txt, boolean isSysProp) {
+  static List<String> parse(String txt) {
     List<String> propFiles = new ArrayList<>();
     if (txt != null) {
-      Matcher matcher = isSysProp ? csvSysPattern.matcher(txt) : csvArgPattern.matcher(txt);
+      Matcher matcher = csvPropPattern.matcher(txt);
       if (!matcher.matches()) {
-        matcher = isSysProp ? sysPattern.matcher(txt) : argPattern.matcher(txt);
+        matcher = propPattern.matcher(txt);
       }
       if (matcher.matches()) {
         for (int i = 1; i <= matcher.groupCount(); i++) {

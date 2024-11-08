@@ -71,7 +71,7 @@ public final class PropertyUtil {
   /**
    * Loads properties from all *.properties resources in resourceDir.
    */
-  public static void loadPAllropertyResources(String resourceDir) {
+  public static void loadAllPropertyResources(String resourceDir) {
     try {
       Path resourcePath = Path.of(
           PropertyUtil.class.getClassLoader().getResource(resourceDir).toURI());

@@ -21,6 +21,8 @@ class PropertyUtilTest {
   private static final Map<String, String> expectedProps1 = Map.of("prop1", "a-value", "prop2",
       "true", "prop3", "false", "prop4", "one,two,three", "prop5", "23");
   private static final Map<String, String> expectedProps2 = Map.of("prop6", "xyz");
+  private static final Map<String, String> expectedProps3 = Map.of("prop1", "value1", "prop2",
+      "value2", "prop3", "value3", "prop4", "value4");
 
   @BeforeEach
   void setup() {
@@ -31,7 +33,7 @@ class PropertyUtilTest {
 
   @Test
   void shouldLoadAllPropFilesFromResourceDir() {
-    PropertyUtil.loadPAllropertyResources("happy/");
+    PropertyUtil.loadAllPropertyResources("happy/");
     assertEquals(Map.of("prop1", "value1", "prop2", "value2", "prop3", "value3", "prop4", "value4"),
         PropertyUtil.getProperties());
   }
@@ -75,12 +77,10 @@ class PropertyUtilTest {
 
   @Test
   void shouldLoadPropsFromDirectory() {
-    PropertyUtil.loadAllPropertyFiles("src/test/resources/");
+    PropertyUtil.loadAllPropertyFiles("src/test/resources/happy");
     Map<String, String> props = PropertyUtil.getProperties();
-    assertEquals(6, props.size());
-    Map<String, String> expectedProps = new HashMap<>(expectedProps1);
-    expectedProps.putAll(expectedProps2);
-    assertEquals(expectedProps, props);
+    assertEquals(4, props.size());
+    assertEquals(expectedProps3, props);
   }
 
   @Test
