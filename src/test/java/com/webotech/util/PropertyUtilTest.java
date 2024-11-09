@@ -184,4 +184,11 @@ class PropertyUtilTest {
         () -> PropertyUtil.loadPropertyResources("test1.properties", "unhappy/test2.properties"));
   }
 
+  @Test
+  void shouldCheckIfResourceIsDirectory() {
+    assertTrue(PropertyUtil.isResourceDir("happy"));
+    assertTrue(PropertyUtil.isResourceDir("happy/"));
+    assertFalse(PropertyUtil.isResourceDir("not-a-directory"));
+    assertFalse(PropertyUtil.isResourceDir("config.properties"));
+  }
 }

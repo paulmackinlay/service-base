@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -194,6 +195,22 @@ public final class PropertyUtil {
       return prev;
     }
     return null;
+  }
+
+  /**
+   * @return true if resource is a directory
+   */
+  public static boolean isResourceDir(String resource) {
+    URL resourceUrl = PropertyUtil.class.getClassLoader().getResource(resource);
+    if (resourceUrl != null) {
+      try {
+        Path resourcePath = Path.of(resourceUrl.toURI());
+        return Files.isDirectory(resourcePath);
+      } catch (URISyntaxException e) {
+        // ignore
+      }
+    }
+    return false;
   }
 
   private static void loadProperiesFilesFromDir(Path dir) {

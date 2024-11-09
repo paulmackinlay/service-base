@@ -9,8 +9,6 @@ import com.webotech.statemachine.service.api.Subsystem;
 import com.webotech.util.ArgUtil;
 import com.webotech.util.PropertyUtil;
 import java.io.File;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -118,26 +116,13 @@ public class PropSubsystem<C extends AppContext<?>> implements Subsystem<C> {
           PropertyUtil.loadPropertyFiles(file);
         }
       } else {
-        if (isResourceDir(file)) {
+        if (PropertyUtil.isResourceDir(file)) {
           PropertyUtil.loadAllPropertyResources(file);
         } else {
           PropertyUtil.loadPropertyResources(file);
         }
       }
     }
-  }
-
-  private static boolean isResourceDir(String resource) {
-    URL resourceUrl = PropSubsystem.class.getClassLoader().getResource(resource);
-    if (resourceUrl != null) {
-      try {
-        Path resourcePath = Path.of(resourceUrl.toURI());
-        return Files.isDirectory(resourcePath);
-      } catch (URISyntaxException e) {
-        // ignore
-      }
-    }
-    return false;
   }
 
   private static <C extends AppContext<?>> List<String> determinePropFiles(String[] initArgs) {
