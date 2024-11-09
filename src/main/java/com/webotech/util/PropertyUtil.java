@@ -90,7 +90,9 @@ public final class PropertyUtil {
    * Loads properties from one or more files.
    */
   public static void loadPropertyFiles(String... propertyFiles) {
-    logger.info("Loading properties in files {}", Arrays.toString(propertyFiles));
+    if (logger.isInfoEnabled()) {
+      logger.info("Loading properties in files {}", Arrays.toString(propertyFiles));
+    }
     for (String propertyFile : propertyFiles) {
       Path propertyPath = Paths.get(propertyFile);
       if (Files.isRegularFile(propertyPath)) {
@@ -154,7 +156,7 @@ public final class PropertyUtil {
     checkPropertiesOnce();
     String csv = getProperty(propertyKey, null);
     return csv != null ? Stream.of(csv.split(",")).map(String::trim).filter(s -> !s.isEmpty())
-        .collect(Collectors.toList()) : defaultValue;
+        .toList() : defaultValue;
   }
 
   /**

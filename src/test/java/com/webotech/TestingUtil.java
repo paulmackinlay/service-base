@@ -7,7 +7,6 @@ package com.webotech;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.Appender;
@@ -20,8 +19,6 @@ import org.apache.logging.log4j.core.layout.PatternLayout;
 
 public class TestingUtil {
 
-  private static final long stateEventQueueTimeoutMills = 5000;
-  private static final long machineEndTimeoutMills = 10000;
   private static final AtomicInteger streamCount = new AtomicInteger();
 
   private TestingUtil() {
@@ -39,14 +36,6 @@ public class TestingUtil {
     OutputStream stdOutStream = new ByteArrayOutputStream();
     System.setOut(new PrintStream(stdOutStream));
     return stdOutStream;
-  }
-
-  public static void sleep(long millis) {
-    try {
-      TimeUnit.MILLISECONDS.sleep(millis);
-    } catch (InterruptedException e) {
-      throw new IllegalStateException(e);
-    }
   }
 
   private static void addOutputStreamLogAppender(OutputStream logStream, String streamName) {

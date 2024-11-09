@@ -66,10 +66,10 @@ public class PropSubsystem<C extends AppContext<?>> implements Subsystem<C> {
   private static final Logger logger = LogManager.getLogger(PropSubsystem.class);
   public static final String CONFIG_KEY = "config";
   private static final String EXCL_REGEX_PATTERN = "(?i).*%s.*";
-  final static Pattern csvPropPattern = Pattern.compile(
+  static final Pattern csvPropPattern = Pattern.compile(
       "^([a-zA-Z0-9\\.\\-_" + Pattern.quote(File.separator) + "]*)\\,+([a-zA-Z0-9\\\\."
           + Pattern.quote(File.separator) + "]*)$");
-  final static Pattern propPattern = Pattern.compile(
+  static final Pattern propPattern = Pattern.compile(
       "^([a-zA-Z0-9\\.\\-_" + Pattern.quote(File.separator) + "]*)$");
   public static final String PROP_KEY_LOG_PROP_VALUES_AFTER_LOAD = "com.webotech.service.PropSubsystem.logPropValuesAfterLoad";
   public static final String PROP_KEY_EXCLUDE_PROP_LOG_FOR_KEYS_CONTAINING_CSV = "com.webotech.service.PropSubsystem.excludePropLogForKeysContainingCsv";
@@ -125,7 +125,7 @@ public class PropSubsystem<C extends AppContext<?>> implements Subsystem<C> {
     }
   }
 
-  private static <C extends AppContext<?>> List<String> determinePropFiles(String[] initArgs) {
+  private static List<String> determinePropFiles(String[] initArgs) {
     List<String> propFiles = parse(System.getProperty(CONFIG_KEY));
     if (propFiles.isEmpty()) {
       propFiles = parse(ArgUtil.getArgValue(initArgs, CONFIG_KEY));

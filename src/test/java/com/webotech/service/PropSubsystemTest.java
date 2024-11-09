@@ -36,17 +36,19 @@ class PropSubsystemTest {
       System.setProperty("config", "test3.properties");
       propSubsystem.start(new TestAppContext("test", new String[0]));
       String log = logStream.toString();
-      assertEquals("Loading properties\n"
-              + "Loading properties from resource [test3.properties]\n"
-              + "8 properties loaded\n"
-              + "com.webotech.service.PropSubsystem.excludePropLogForKeysContainingCsv=secret,password,passwd,credentials\n"
-              + "com.webotech.service.PropSubsystem.logPropValuesAfterLoad=true\n"
-              + "db.passwd=***\n"
-              + "prop1=a-value\n"
-              + "prop2=true\n"
-              + "prop3=false\n"
-              + "prop4=one,two,three\n"
-              + "prop5=23\n",
+      assertEquals("""
+              Loading properties
+              Loading properties from resource [test3.properties]
+              8 properties loaded
+              com.webotech.service.PropSubsystem.excludePropLogForKeysContainingCsv=secret,password,passwd,credentials
+              com.webotech.service.PropSubsystem.logPropValuesAfterLoad=true
+              db.passwd=***
+              prop1=a-value
+              prop2=true
+              prop3=false
+              prop4=one,two,three
+              prop5=23
+              """,
           log);
       assertEquals(List.of("one", "two", "three"),
           PropertyUtil.getPropertyAsList("prop4", List.of()));
@@ -61,10 +63,12 @@ class PropSubsystemTest {
       System.setProperty("config", "a-non-existant-prop-file.properties");
       propSubsystem.start(new TestAppContext("test", new String[0]));
       String log = logStream.toString();
-      assertEquals("Loading properties\n"
-              + "Loading properties from resource [a-non-existant-prop-file.properties]\n"
-              + "Properties stream does not exist\n"
-              + "0 properties loaded\n",
+      assertEquals("""
+              Loading properties
+              Loading properties from resource [a-non-existant-prop-file.properties]
+              Properties stream does not exist
+              0 properties loaded
+              """,
           log);
     } finally {
       System.clearProperty("config");
@@ -76,9 +80,11 @@ class PropSubsystemTest {
     try (OutputStream logStream = TestingUtil.initLogCaptureStream()) {
       propSubsystem.start(new TestAppContext("test", new String[0]));
       String log = logStream.toString();
-      assertEquals("Loading properties\n"
-              + "Loading properties from resource [config.properties]\n"
-              + "0 properties loaded\n",
+      assertEquals("""
+              Loading properties
+              Loading properties from resource [config.properties]
+              0 properties loaded
+              """,
           log);
     }
   }
@@ -88,10 +94,12 @@ class PropSubsystemTest {
     try (OutputStream logStream = TestingUtil.initLogCaptureStream()) {
       propSubsystem.start(new TestAppContext("test", new String[]{"config=happy/"}));
       String log = logStream.toString();
-      assertEquals("Loading properties\n"
-              + "Loading properties in files [/home/cmacki/git/service-base/target/test-classes/happy/test1.properties]\n"
-              + "Loading properties in files [/home/cmacki/git/service-base/target/test-classes/happy/test2.properties]\n"
-              + "4 properties loaded\n",
+      assertEquals("""
+              Loading properties
+              Loading properties in files [/home/cmacki/git/service-base/target/test-classes/happy/test1.properties]
+              Loading properties in files [/home/cmacki/git/service-base/target/test-classes/happy/test2.properties]
+              4 properties loaded
+              """,
           log);
       assertEquals(
           Map.of("prop3", "value3", "prop4", "value4", "prop1", "value1", "prop2", "value2"),
