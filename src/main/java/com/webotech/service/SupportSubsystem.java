@@ -15,21 +15,17 @@ import static com.webotech.service.data.SupportData.OS_ARCHITECTURE;
 import static com.webotech.service.data.SupportData.USER;
 
 import com.webotech.service.data.SupportData;
+import com.webotech.service.support.DeadlockDetector;
 import com.webotech.statemachine.service.api.AppContext;
 import com.webotech.statemachine.service.api.Subsystem;
-import com.webotech.statemachine.util.Threads;
 import com.webotech.util.PropertyUtil;
 import java.lang.ProcessHandle.Info;
-import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -91,6 +87,11 @@ public class SupportSubsystem<C extends AppContext<?>> implements Subsystem<C> {
       SupportData.JAVA_CLASSPATH, JAVA_CLASSPATH);
 
   public static final SupportData supportData = new SupportData(hostMap, processMap, jvmMap);
+  private final DeadlockDetector deadlockDetector;
+
+  public SupportSubsystem() {
+    deadlockDetector = new DeadlockDetector();
+  }
 
   @Override
   public void start(C appContext) {
@@ -107,13 +108,9 @@ deadlock detection
 
     if (PropertyUtil.getPropertyAsBoolean(
         "com.webotech.service.SupportSubsystem.enableDeadlockDetection", true)) {
-      //TODO make this better
-      ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(
-          Threads.newNamedDaemonThreadFactory("deadlock-detect", (t, e) -> {
-            logger.error("Uncaught exception in thread {}", t, e);
-          }));
-      scheduledExecutorService.scheduleAtFixedRate(new DeadlockDetectTask(
-          ManagementFactory.getThreadMXBean()), 10, 0, TimeUnit.SECONDS);
+      String iso8601Period = PropertyUtil.getProperty(
+          "com.webotech.service.SupportSubsystem.deadlockDetectionPeriodIso8601", "PT10S");
+      deadlockDetector.startDetecting(iso8601Period);
     }
   }
 
