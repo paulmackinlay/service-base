@@ -80,6 +80,7 @@ class DeadlockDetectorTest {
           log.startsWith("Will schedule deadlock detection every 200 millis\nDeadlock detected:"));
       assertTrue(log.contains("\"deadlock-task-0\""));
       assertTrue(log.contains("\"deadlock-task-1\""));
+      assertTrue(log.contains("Number of locked synchronizers = 1"));
     }
   }
 
