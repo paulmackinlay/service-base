@@ -41,6 +41,7 @@ public class DeadlockDetector {
   }
 
   public void stopDetecting(String iso8601TerminationTimeout) {
+    logger.info("Shutting down deadlock detection with timeout {}", iso8601TerminationTimeout);
     detectionFuture.cancel(true);
     scheduledExecutorService.shutdownNow();
     try {

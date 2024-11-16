@@ -150,7 +150,6 @@ public class SupportSubsystem<C extends AppContext<?>> implements Subsystem<C> {
     }
   }
 
-  //TODO - test this
   @Override
   public void stop(C appContext) {
     if (PropertyUtil.getPropertyAsBoolean(PROP_KEY_ENABLE_DEADLOCK_DETECTION, true)) {

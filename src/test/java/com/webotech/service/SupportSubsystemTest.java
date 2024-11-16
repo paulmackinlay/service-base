@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.webotech.TestingUtil;
 import com.webotech.service.data.SupportData;
+import com.webotech.util.PropertyUtil;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
@@ -55,6 +56,31 @@ class SupportSubsystemTest {
       assertTrue(log.contains("Host SupportData"));
       assertTrue(log.contains("JVM SupportData"));
       assertTrue(log.contains("Process SupportData"));
+    }
+  }
+
+  @Test
+  void shouldStartDetectingDeadlocks() throws IOException {
+    PropertyUtil.setProperty(SupportSubsystem.PROP_KEY_ENABLE_SUPPORT_DATA_LOGGING, "false");
+    try (OutputStream logStream = TestingUtil.initLogCaptureStream()) {
+      supportSubsystem.start(testAppContext);
+      String log = TestingUtil.asNormalisedTxt(logStream);
+      assertEquals("Will schedule deadlock detection every 60000 millis\n", log);
+    } finally {
+      PropertyUtil.removeProperty(SupportSubsystem.PROP_KEY_ENABLE_SUPPORT_DATA_LOGGING);
+    }
+  }
+
+  @Test
+  void shouldStopDetectingDeadlocks() throws IOException {
+    PropertyUtil.setProperty(SupportSubsystem.PROP_KEY_ENABLE_SUPPORT_DATA_LOGGING, "false");
+    supportSubsystem.start(testAppContext);
+    try (OutputStream logStream = TestingUtil.initLogCaptureStream()) {
+      supportSubsystem.stop(testAppContext);
+      String log = TestingUtil.asNormalisedTxt(logStream);
+      assertEquals("Shutting down deadlock detection with timeout PT5S\n", log);
+    } finally {
+      PropertyUtil.removeProperty(SupportSubsystem.PROP_KEY_ENABLE_SUPPORT_DATA_LOGGING);
     }
   }
 }
