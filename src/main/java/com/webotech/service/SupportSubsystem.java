@@ -80,8 +80,6 @@ public class SupportSubsystem<C extends AppContext<?>> implements Subsystem<C> {
 
   //Process data
   private static final long MAX_MEMORY_BYTES = RUNTIME.maxMemory();
-  //TODO do divisions using bitwise operations
-  private static final double b = MAX_MEMORY_BYTES >> 1024;
   private static final double MAX_MEMORY_MEBI_BYTES =
       Math.round(ONE_THOUSAND * MAX_MEMORY_BYTES / (KIBO_SCALAR * KIBO_SCALAR)) / ONE_THOUSAND;
   private static final double MAX_MEMORY_GIBI_BYTES =
