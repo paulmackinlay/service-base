@@ -20,16 +20,16 @@ import com.webotech.statemachine.service.api.AppContext;
 import com.webotech.statemachine.service.api.Subsystem;
 import com.webotech.util.PropertyUtil;
 import java.lang.ProcessHandle.Info;
-import java.lang.management.ThreadInfo;
-import java.lang.management.ThreadMXBean;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * TODO
+ */
 public class SupportSubsystem<C extends AppContext<?>> implements Subsystem<C> {
 
   private static final Logger logger = LogManager.getLogger(SupportSubsystem.class);
@@ -52,12 +52,15 @@ public class SupportSubsystem<C extends AppContext<?>> implements Subsystem<C> {
       ipAddr = ip.getHostAddress();
     } catch (UnknownHostException e) {
       logger.error("Unable to determine hostname and IP address", e);
+      hostname = "";
+      ipAddr = "";
     }
   }
 
   //Process data
   private static final long MAX_MEMORY_BYTES = RUNTIME.maxMemory();
-  private static final double b = MAX_MEMORY_BYTES >> 1024; //TODO
+  //TODO do divisions using bitwise operations
+  private static final double b = MAX_MEMORY_BYTES >> 1024;
   private static final double MAX_MEMORY_MEBI_BYTES =
       Math.round(ONE_THOUSAND * MAX_MEMORY_BYTES / (KIBO_SCALAR * KIBO_SCALAR)) / ONE_THOUSAND;
   private static final double MAX_MEMORY_GIBI_BYTES =
@@ -74,19 +77,26 @@ public class SupportSubsystem<C extends AppContext<?>> implements Subsystem<C> {
   private static final String JAVA_HOME = System.getProperty("java.home");
   private static final String JAVA_CLASSPATH = System.getProperty("java.class.path");
   private static final Map<String, String> hostMap = Map.of(SupportData.OS_NAME, OS_NAME,
-      OS_ARCHITECTURE,
-      OS_ARCH, SupportData.OS_VERSION, OS_VERSION, HOSTNAME, hostname, IP_ADDRESS, ipAddr,
-      AVAILABLE_PROCESSOR_COUNT, String.valueOf(NO_OF_PROCESSORS));
+      OS_ARCHITECTURE, OS_ARCH, SupportData.OS_VERSION, OS_VERSION, HOSTNAME, hostname, IP_ADDRESS,
+      ipAddr, AVAILABLE_PROCESSOR_COUNT, String.valueOf(NO_OF_PROCESSORS));
   private static final Map<String, String> processMap = Map.of(SupportData.PID, String.valueOf(PID),
-      CL_ARGS,
-      PROCESS_ARGS, USER, PROCESS_USER, MEMORY_B, String.valueOf(MAX_MEMORY_BYTES), MEMORY_KI_B,
-      String.valueOf(MAX_MEMORY_MEBI_BYTES), MEMORY_GI_B, String.valueOf(MAX_MEMORY_GIBI_BYTES));
+      CL_ARGS, PROCESS_ARGS, USER, PROCESS_USER, MEMORY_B, String.valueOf(MAX_MEMORY_BYTES),
+      MEMORY_KI_B, String.valueOf(MAX_MEMORY_MEBI_BYTES), MEMORY_GI_B,
+      String.valueOf(MAX_MEMORY_GIBI_BYTES));
   private static final Map<String, String> jvmMap = Map.of(SupportData.JAVA_SPEC_VERSION,
-      JAVA_SPEC_VERSION,
-      SupportData.JAVA_VERSION, JAVA_VERSION, SupportData.JAVA_HOME, JAVA_HOME,
+      JAVA_SPEC_VERSION, SupportData.JAVA_VERSION, JAVA_VERSION, SupportData.JAVA_HOME, JAVA_HOME,
       SupportData.JAVA_CLASSPATH, JAVA_CLASSPATH);
 
+  /**
+   * TODO
+   */
   public static final SupportData supportData = new SupportData(hostMap, processMap, jvmMap);
+  //TODO
+  public static final String PROP_KEY_ENABLE_SUPPORT_DATA_LOGGING = "com.webotech.service.SupportSubsystem.enableSupportDataLogging";
+  //TODO
+  public static final String PROP_KEY_ENABLE_DEADLOCK_DETECTION = "com.webotech.service.SupportSubsystem.enableDeadlockDetection";
+  //TODO
+  public static final String PROP_KEY_DEADLOCK_DETECTION_PERIOD_ISO8601 = "com.webotech.service.SupportSubsystem.deadlockDetectionPeriodIso8601";
   private final DeadlockDetector deadlockDetector;
 
   public SupportSubsystem() {
@@ -95,51 +105,20 @@ public class SupportSubsystem<C extends AppContext<?>> implements Subsystem<C> {
 
   @Override
   public void start(C appContext) {
-/*
-TODO
-Log out classpath, running path
-prepare Unique address appname|appinstance|pid|host
-deadlock detection
- */
-    if (PropertyUtil.getPropertyAsBoolean(
-        "com.webotech.service.SupportSubsystem.enableSupportDataLogging", true)) {
+    if (PropertyUtil.getPropertyAsBoolean(PROP_KEY_ENABLE_SUPPORT_DATA_LOGGING, true)) {
       logger.info("\n{}", supportData);
     }
 
-    if (PropertyUtil.getPropertyAsBoolean(
-        "com.webotech.service.SupportSubsystem.enableDeadlockDetection", true)) {
-      String iso8601Period = PropertyUtil.getProperty(
-          "com.webotech.service.SupportSubsystem.deadlockDetectionPeriodIso8601", "PT10S");
+    if (PropertyUtil.getPropertyAsBoolean(PROP_KEY_ENABLE_DEADLOCK_DETECTION, true)) {
+      String iso8601Period = PropertyUtil.getProperty(PROP_KEY_DEADLOCK_DETECTION_PERIOD_ISO8601,
+          "PT10S");
       deadlockDetector.startDetecting(iso8601Period);
     }
   }
 
   @Override
   public void stop(C appContext) {
-
+    //TODO
   }
 
-  private static class DeadlockDetectTask implements Runnable {
-
-    private final ThreadMXBean threadMxBean;
-
-    DeadlockDetectTask(ThreadMXBean threadMxBean) {
-      this.threadMxBean = threadMxBean;
-    }
-
-    @Override
-    public void run() {
-      long[] deadlockedThreadIds = threadMxBean.findDeadlockedThreads();
-      if (deadlockedThreadIds != null) {
-        ThreadInfo[] threadInfos = threadMxBean.getThreadInfo(deadlockedThreadIds, true, true);
-        //TODO log this
-        System.out.println(threadDump(threadInfos));
-        System.out.println(threadDump(threadMxBean.dumpAllThreads(true, true)));
-      }
-    }
-
-    private String threadDump(ThreadInfo[] threadInfos) {
-      return Arrays.stream(threadInfos).map(Object::toString).collect(Collectors.joining());
-    }
-  }
 }

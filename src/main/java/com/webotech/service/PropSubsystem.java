@@ -71,7 +71,9 @@ public class PropSubsystem<C extends AppContext<?>> implements Subsystem<C> {
           + Pattern.quote(File.separator) + "]*)$");
   static final Pattern propPattern = Pattern.compile(
       "^([a-zA-Z0-9\\.\\-_" + Pattern.quote(File.separator) + "]*)$");
+  //TODO
   public static final String PROP_KEY_LOG_PROP_VALUES_AFTER_LOAD = "com.webotech.service.PropSubsystem.logPropValuesAfterLoad";
+  //TODO
   public static final String PROP_KEY_EXCLUDE_PROP_LOG_FOR_KEYS_CONTAINING_CSV = "com.webotech.service.PropSubsystem.excludePropLogForKeysContainingCsv";
 
   @Override

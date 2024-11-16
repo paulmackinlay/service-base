@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2024 Paul Mackinlay <paul.mackinlay@gmail.com>
  */
-
 package com.webotech.service.data;
 
 import java.util.Collections;
@@ -9,6 +8,9 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+/**
+ * Encapsulates data that is useful for (3rd line) support purposes.
+ */
 public class SupportData {
 
   public static final String OS_NAME = "OS name";
@@ -30,24 +32,45 @@ public class SupportData {
   private final Map<String, String> host;
   private final Map<String, String> process;
   private final Map<String, String> jvm;
+  private final Map<String, String> all;
 
   public SupportData(Map<String, String> host, Map<String, String> process,
       Map<String, String> jvm) {
     this.host = Collections.unmodifiableMap(new TreeMap<>(host));
     this.process = Collections.unmodifiableMap(new TreeMap<>(process));
     this.jvm = Collections.unmodifiableMap(new TreeMap<>(jvm));
+    Map<String, String> allData = new TreeMap<>(host);
+    allData.putAll(process);
+    allData.putAll(jvm);
+    all = Collections.unmodifiableMap(allData);
   }
 
+  /**
+   * @return host related support data as a map with sorted keys
+   */
   public Map<String, String> getHost() {
     return host;
   }
 
+  /**
+   * @return process related support data as a map with sorted keys
+   */
   public Map<String, String> getProcess() {
     return process;
   }
 
+  /**
+   * @return JVM related support data as a map with sorted keys
+   */
   public Map<String, String> getJvm() {
     return jvm;
+  }
+
+  /**
+   * @return all support data as a map with sorted keys
+   */
+  public Map<String, String> getAll() {
+    return all;
   }
 
   private static String toString(Map<String, String> map) {
