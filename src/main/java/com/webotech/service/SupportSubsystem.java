@@ -88,15 +88,29 @@ public class SupportSubsystem<C extends AppContext<?>> implements Subsystem<C> {
       SupportData.JAVA_CLASSPATH, JAVA_CLASSPATH);
 
   /**
-   * TODO
+   * Exposes {@link SupportData} statically so it can be accessed anywhere within an app.
    */
   public static final SupportData supportData = new SupportData(hostMap, processMap, jvmMap);
-  //TODO
+  /**
+   * Property key with expected value of true|false to control if
+   * {@link SupportSubsystem#supportData} is logged.
+   */
   public static final String PROP_KEY_ENABLE_SUPPORT_DATA_LOGGING = "com.webotech.service.SupportSubsystem.enableSupportDataLogging";
-  //TODO
+  /**
+   * Property key with expected value of true|false to control if deadlock detection is enabled.
+   * Note that detection will use a dedicated thread to periodically check for deadlocks.
+   */
   public static final String PROP_KEY_ENABLE_DEADLOCK_DETECTION = "com.webotech.service.SupportSubsystem.enableDeadlockDetection";
-  //TODO
+  /**
+   * Property key with expected value of an ISO 8601 formatted time period used to configure the
+   * period between deadlock checks.
+   */
   public static final String PROP_KEY_DEADLOCK_DETECTION_PERIOD_ISO8601 = "com.webotech.service.SupportSubsystem.deadlockDetectionPeriodIso8601";
+  /**
+   * Property key with expected value of an ISO 8601 formatted time period used to define the
+   * timeout for stopping deadlock detection.
+   */
+  public static final String PROP_KEY_STOP_DEADLOCK_DETECTION_TIMEOUT_ISO8601 = "com.webotech.service.SupportSubsystem.stopDeadlockDetectionTimeoutIso8601";
   private final DeadlockDetector deadlockDetector;
 
   public SupportSubsystem() {
@@ -108,17 +122,21 @@ public class SupportSubsystem<C extends AppContext<?>> implements Subsystem<C> {
     if (PropertyUtil.getPropertyAsBoolean(PROP_KEY_ENABLE_SUPPORT_DATA_LOGGING, true)) {
       logger.info("\n{}", supportData);
     }
-
     if (PropertyUtil.getPropertyAsBoolean(PROP_KEY_ENABLE_DEADLOCK_DETECTION, true)) {
       String iso8601Period = PropertyUtil.getProperty(PROP_KEY_DEADLOCK_DETECTION_PERIOD_ISO8601,
-          "PT10S");
+          "PT60S");
       deadlockDetector.startDetecting(iso8601Period);
     }
   }
 
+  //TODO - test this
   @Override
   public void stop(C appContext) {
-    //TODO
+    if (PropertyUtil.getPropertyAsBoolean(PROP_KEY_ENABLE_DEADLOCK_DETECTION, true)) {
+      String iso8601Timeout = PropertyUtil.getProperty(
+          PROP_KEY_STOP_DEADLOCK_DETECTION_TIMEOUT_ISO8601, "PT5S");
+      deadlockDetector.stopDetecting(iso8601Timeout);
+    }
   }
 
 }
