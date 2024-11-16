@@ -35,7 +35,7 @@ class PropSubsystemTest {
     try (OutputStream logStream = TestingUtil.initLogCaptureStream()) {
       System.setProperty("config", "test3.properties");
       propSubsystem.start(new TestAppContext("test", new String[0]));
-      String log = logStream.toString();
+      String log = TestingUtil.asNormalisedTxt(logStream);
       assertEquals("""
               Loading properties
               Loading properties from resource [test3.properties]
@@ -62,7 +62,7 @@ class PropSubsystemTest {
     try (OutputStream logStream = TestingUtil.initLogCaptureStream()) {
       System.setProperty("config", "a-non-existant-prop-file.properties");
       propSubsystem.start(new TestAppContext("test", new String[0]));
-      String log = logStream.toString();
+      String log = TestingUtil.asNormalisedTxt(logStream);
       assertEquals("""
               Loading properties
               Loading properties from resource [a-non-existant-prop-file.properties]
@@ -79,7 +79,7 @@ class PropSubsystemTest {
   void shouldLoadNoProps() throws IOException {
     try (OutputStream logStream = TestingUtil.initLogCaptureStream()) {
       propSubsystem.start(new TestAppContext("test", new String[0]));
-      String log = logStream.toString();
+      String log = TestingUtil.asNormalisedTxt(logStream);
       assertEquals("""
               Loading properties
               Loading properties from resource [config.properties]
@@ -93,7 +93,7 @@ class PropSubsystemTest {
   void shouldAllPropsFromDir() throws IOException {
     try (OutputStream logStream = TestingUtil.initLogCaptureStream()) {
       propSubsystem.start(new TestAppContext("test", new String[]{"config=happy/"}));
-      String log = logStream.toString();
+      String log = TestingUtil.asNormalisedTxt(logStream);
       assertEquals("""
               Loading properties
               Loading properties in files [/home/cmacki/git/service-base/target/test-classes/happy/test1.properties]

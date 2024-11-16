@@ -75,12 +75,13 @@ class DeadlockDetectorTest {
     try (OutputStream logStream = TestingUtil.initLogCaptureStream()) {
       deadlockDetector.startDetecting("PT0.2S");
       TimeUnit.MILLISECONDS.sleep(300);
-      String log = logStream.toString();
+      String log = TestingUtil.asNormalisedTxt(logStream);
       assertTrue(
           log.startsWith("Will schedule deadlock detection every 200 millis\nDeadlock detected:"));
       assertTrue(log.contains("\"deadlock-task-0\""));
       assertTrue(log.contains("\"deadlock-task-1\""));
       assertTrue(log.contains("Number of locked synchronizers = 1"));
+      assertTrue(log.contains("BLOCKED"));
     }
   }
 

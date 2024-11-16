@@ -38,6 +38,14 @@ public class TestingUtil {
     return stdOutStream;
   }
 
+  public static String asNormalisedTxt(OutputStream outputStream) {
+    return normaliseEol(outputStream.toString());
+  }
+
+  public static String normaliseEol(String txt) {
+    return txt.replaceAll("\\r\\n?", "\n");
+  }
+
   private static void addOutputStreamLogAppender(OutputStream logStream, String streamName) {
     LoggerContext context = LoggerContext.getContext(false);
     Configuration configuration = context.getConfiguration();

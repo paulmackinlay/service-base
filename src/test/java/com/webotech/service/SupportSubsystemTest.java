@@ -42,7 +42,7 @@ class SupportSubsystemTest {
         supportData.getProcess().keySet());
     try (OutputStream logStream = TestingUtil.initLogCaptureStream()) {
       supportSubsystem.start(testAppContext);
-      String log = logStream.toString();
+      String log = TestingUtil.asNormalisedTxt(logStream);
       List<String> keys = Arrays.asList(SupportData.AVAILABLE_PROCESSOR_COUNT, SupportData.HOSTNAME,
           SupportData.IP_ADDRESS, SupportData.OS_ARCHITECTURE, SupportData.OS_NAME,
           SupportData.OS_VERSION, SupportData.JAVA_CLASSPATH, SupportData.JAVA_HOME,
