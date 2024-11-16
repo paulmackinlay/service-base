@@ -14,10 +14,9 @@ public class ServiceUtil {
   }
 
   /**
-   * This will start an {@link AppService} handling exceptions. Typically, this will block until the
-   * {@link AppService} stops.
+   * This will start an {@link AppService} while handling exceptions. Typically, this will block
+   * until the {@link AppService} stops.
    */
-  //TODO test this
   public static <C extends AppContext<?>> void startService(AppService<C> appService) {
     try {
       appService.start();
