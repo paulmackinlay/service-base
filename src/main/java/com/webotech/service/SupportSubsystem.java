@@ -28,7 +28,28 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * TODO
+ * A {@link Subsystem} that helps with 3rd line support by logging important information about the
+ * app. This should be amoung the first subsystems that is used (but after the
+ * {@link PropSubsystem}) so that support information is available in the logs as early as
+ * possible.
+ * <p>
+ * {@link SupportSubsystem#supportData} is logged by default, this contains information about the
+ * host, the process and the JVM. Sometimes to diagnose an issue with a process it is important to
+ * understand the context in which it is running, this will provide that. It can be disabled using
+ * the {@link SupportSubsystem#PROP_KEY_ENABLE_SUPPORT_DATA_LOGGING} property.
+ * <p>
+ * Deadlock detection is started by default where a dedicated thread checks for deadlocks within the
+ * process at a fixed period. If any are found the details of the locked treads are logged. These
+ * properties can be used to control if it is enabled and various other aspects of how it works:
+ * <ul>
+ * <li>{@link SupportSubsystem#PROP_KEY_ENABLE_DEADLOCK_DETECTION}</li>
+ * <li>{@link SupportSubsystem#PROP_KEY_DEADLOCK_DETECTION_PERIOD_ISO8601}</li>
+ * <li>{@link SupportSubsystem#PROP_KEY_STOP_DEADLOCK_DETECTION_TIMEOUT_ISO8601}</li>
+ * </ul>
+ * Threading issues are the trickiest kind of issue to understand, a deadlock is the only type that
+ * can be reliably detected. This {@link Subsystem} does it programatically, the alternative is to
+ * guess a deadlock has a happened and then grab a threaddump or use visual tool
+ * to confirm.
  */
 public class SupportSubsystem<C extends AppContext<?>> implements Subsystem<C> {
 
