@@ -71,9 +71,15 @@ public class PropSubsystem<C extends AppContext<?>> implements Subsystem<C> {
           + Pattern.quote(File.separator) + "]*)$");
   static final Pattern propPattern = Pattern.compile(
       "^([a-zA-Z0-9\\.\\-_" + Pattern.quote(File.separator) + "]*)$");
-  //TODO
+  /**
+   * Property key with expected value of true|false to control if properties are logged after
+   * loading.
+   */
   public static final String PROP_KEY_LOG_PROP_VALUES_AFTER_LOAD = "com.webotech.service.PropSubsystem.logPropValuesAfterLoad";
-  //TODO
+  /**
+   * Property key with expected CSV value containing a list of property keys for which values are
+   * not logged. Generally used to obscure sensitive information in logs.
+   */
   public static final String PROP_KEY_EXCLUDE_PROP_LOG_FOR_KEYS_CONTAINING_CSV = "com.webotech.service.PropSubsystem.excludePropLogForKeysContainingCsv";
 
   @Override
