@@ -91,6 +91,7 @@ class PropSubsystemTest {
 
   @Test
   void shouldLoadAllPropsFromDir() throws IOException {
+    
     try (OutputStream logStream = TestingUtil.initLogCaptureStream()) {
       propSubsystem.start(new TestAppContext("test", new String[]{"config=happy/"}));
       String log = TestingUtil.asNormalisedTxt(logStream);
