@@ -18,7 +18,7 @@ import java.util.regex.Matcher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class PropSubsystem1Test {
+class PropSubsystemTest {
 
   private PropSubsystem<TestAppContext> propSubsystem;
 
