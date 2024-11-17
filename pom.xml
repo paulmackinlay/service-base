@@ -7,8 +7,7 @@
   <version>0.0.5-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>${project.groupId}:${project.artifactId}</name>
-  <description>Base functionality for apps or microservices based on the service API in
-    state-machine
+  <description>Base functionality for microservices/apps based on the service API in state-machine
   </description>
   <url>https://github.com/paulmackinlay/service-base</url>
 
