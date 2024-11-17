@@ -29,7 +29,7 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * A {@link Subsystem} that helps with 3rd line support by logging important information about the
- * app. This should be amoung the first subsystems that is used (but after the
+ * app. This should be among the first subsystems that is used (but after the
  * {@link PropSubsystem}) so that support information is available in the logs as early as
  * possible.
  * <p>
@@ -47,8 +47,8 @@ import org.apache.logging.log4j.Logger;
  * <li>{@link SupportSubsystem#PROP_KEY_STOP_DEADLOCK_DETECTION_TIMEOUT_ISO8601}</li>
  * </ul>
  * Threading issues are the trickiest kind of issue to understand, a deadlock is the only type that
- * can be reliably detected. This {@link Subsystem} does it programatically, the alternative is to
- * guess a deadlock has a happened and then grab a threaddump or use visual tool
+ * can be reliably detected. This {@link Subsystem} does it programmatically, the alternative is to
+ * guess a deadlock has a happened and then grab a thread dump or use visual tool
  * to confirm.
  */
 public class SupportSubsystem<C extends AppContext<?>> implements Subsystem<C> {
@@ -63,8 +63,8 @@ public class SupportSubsystem<C extends AppContext<?>> implements Subsystem<C> {
   private static final String OS_NAME = System.getProperty("os.name");
   private static final String OS_ARCH = System.getProperty("os.arch");
   private static final String OS_VERSION = System.getProperty("os.version");
-  private static String hostname = null;
-  private static String ipAddr = null;
+  private static String hostname;
+  private static String ipAddr;
 
   static {
     try {

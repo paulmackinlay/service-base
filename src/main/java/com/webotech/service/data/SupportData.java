@@ -69,6 +69,7 @@ public class SupportData {
   /**
    * @return all support data as a map with sorted keys
    */
+  //TODO test this
   public Map<String, String> getAll() {
     return all;
   }

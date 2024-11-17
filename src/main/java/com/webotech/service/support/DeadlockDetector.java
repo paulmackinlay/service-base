@@ -31,9 +31,8 @@ public class DeadlockDetector {
 
   public void startDetecting(String iso8601Period) {
     scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(
-        Threads.newNamedDaemonThreadFactory("deadlock-detect", (t, e) -> {
-          logger.error("Uncaught exception in thread {}", t, e);
-        }));
+        Threads.newNamedDaemonThreadFactory("deadlock-detect",
+            (t, e) -> logger.error("Uncaught exception in thread {}", t, e)));
     long periodMills = Duration.parse(iso8601Period).toMillis();
     logger.info("Will schedule deadlock detection every {} millis", periodMills);
     detectionFuture = scheduledExecutorService.scheduleAtFixedRate(deadlockDetectTask, 0,
@@ -45,9 +44,13 @@ public class DeadlockDetector {
     detectionFuture.cancel(true);
     scheduledExecutorService.shutdownNow();
     try {
-      scheduledExecutorService.awaitTermination(
+      boolean success = scheduledExecutorService.awaitTermination(
           Duration.parse(iso8601TerminationTimeout).toMillis(), TimeUnit.MILLISECONDS);
+      if (!success) {
+        logger.warn("Deadlock detection executor timed out before terminating");
+      }
     } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
       throw new IllegalStateException(e);
     }
   }
@@ -65,7 +68,9 @@ public class DeadlockDetector {
       long[] deadlockedThreadIds = threadMxBean.findDeadlockedThreads();
       if (deadlockedThreadIds != null) {
         ThreadInfo[] threadInfos = threadMxBean.getThreadInfo(deadlockedThreadIds, true, true);
-        logger.error("Deadlock detected:\n" + threadDump(threadInfos));
+        if (logger.isErrorEnabled()) {
+          logger.error("Deadlock detected:\n{}", threadDump(threadInfos));
+        }
       }
     }
 

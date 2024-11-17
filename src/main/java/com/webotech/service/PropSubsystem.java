@@ -67,7 +67,7 @@ public class PropSubsystem<C extends AppContext<?>> implements Subsystem<C> {
   public static final String CONFIG_KEY = "config";
   private static final String EXCL_REGEX_PATTERN = "(?i).*%s.*";
   static final Pattern csvPropPattern = Pattern.compile(
-      "^([a-zA-Z0-9\\.\\-_" + Pattern.quote(File.separator) + "]*)\\,+([a-zA-Z0-9\\\\."
+      "^([a-zA-Z0-9\\.\\-_" + Pattern.quote(File.separator) + "]*)\\,+([a-zA-Z0-9\\."
           + Pattern.quote(File.separator) + "]*)$");
   static final Pattern propPattern = Pattern.compile(
       "^([a-zA-Z0-9\\.\\-_" + Pattern.quote(File.separator) + "]*)$");

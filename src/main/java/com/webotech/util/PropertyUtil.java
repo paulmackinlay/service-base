@@ -73,11 +73,14 @@ public final class PropertyUtil {
    * Loads properties from all *.properties resources in resourceDir.
    */
   public static void loadAllPropertyResources(String resourceDir) {
+    URL resource = PropertyUtil.class.getClassLoader().getResource(resourceDir);
+    if (resource == null) {
+      throw new IllegalArgumentException("[" + resourceDir + "] does not exist");
+    }
     try {
-      Path resourcePath = Path.of(
-          PropertyUtil.class.getClassLoader().getResource(resourceDir).toURI());
+      Path resourcePath = Path.of(resource.toURI());
       if (Files.isDirectory(resourcePath)) {
-        loadProperiesFilesFromDir(resourcePath);
+        loadPropertiesFilesFromDir(resourcePath);
       } else {
         throw new IllegalArgumentException("[" + resourceDir + "] is not a resource directory");
       }
@@ -114,7 +117,7 @@ public final class PropertyUtil {
     logger.info("Loading all .properties files in directory [{}]", propertyDir);
     Path dir = Paths.get(propertyDir);
     if (Files.isDirectory(dir)) {
-      loadProperiesFilesFromDir(dir);
+      loadPropertiesFilesFromDir(dir);
     } else {
       throw new IllegalArgumentException("Expect a directory with *.properties files in it");
     }
@@ -215,7 +218,7 @@ public final class PropertyUtil {
     return false;
   }
 
-  private static void loadProperiesFilesFromDir(Path dir) {
+  private static void loadPropertiesFilesFromDir(Path dir) {
     try (Stream<Path> list = Files.list(dir)) {
       list.filter(f -> Files.isRegularFile(f) && f.toString().endsWith(PROPERTIES_EXT))
           .forEach(f -> loadPropertyFiles(f.toString()));
@@ -256,17 +259,17 @@ public final class PropertyUtil {
 
   private static void validate(Properties newProperties) {
     Set<String> existingPropertyKeys = existingPropertyKeys();
-    newProperties.entrySet().forEach(e -> {
-      String n = String.valueOf(e.getKey());
-      String v = String.valueOf(e.getValue());
-      validateTxt(n);
-      validateValue(n, v);
-      validateDuplicate(existingPropertyKeys, n);
+    newProperties.forEach((k, v) -> {
+      String name = String.valueOf(k);
+      String value = String.valueOf(v);
+      validateTxt(name);
+      validateValue(name, value);
+      validateDuplicate(existingPropertyKeys, name);
     });
   }
 
   private static void stripSystemProperties(Properties newProperties) {
-    newProperties.stringPropertyNames().stream().forEach(k -> {
+    newProperties.stringPropertyNames().forEach(k -> {
       if (System.getProperty(k) != null) {
         logger.warn(
             "System property with key [{}] exists, it will not be loaded into the internal properties",
@@ -293,12 +296,12 @@ public final class PropertyUtil {
 
   private static void validateTxt(String txt) {
     if (txt == null) {
-      throw new IllegalArgumentException("'" + txt + "' cannot be null");
+      throw new IllegalArgumentException("Text being validated cannot be null");
     }
     if (Pattern.matches(LEADING_REGEX, txt) || Pattern.matches(TRAILING_REGEX, txt)) {
       throw new IllegalArgumentException("'" + txt + "' contains leading/trailing whitespace");
     }
-    if (txt.length() < 1) {
+    if (txt.isEmpty()) {
       throw new IllegalArgumentException("'" + txt + "' cannot be empty");
     }
   }
