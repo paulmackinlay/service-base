@@ -13,7 +13,9 @@ import com.webotech.util.PropertyUtil;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,6 +28,16 @@ class SupportSubsystemTest {
   @BeforeEach
   void setup() {
     supportSubsystem = new SupportSubsystem<>();
+  }
+
+  @Test
+  void shouldGetAllSupportData() {
+    SupportData supportData = SupportSubsystem.supportData;
+    Map<String, String> data = new HashMap<>();
+    data.putAll(supportData.getHost());
+    data.putAll(supportData.getProcess());
+    data.putAll(supportData.getJvm());
+    assertEquals(data, supportData.getAll());
   }
 
   @Test
