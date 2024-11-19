@@ -66,8 +66,7 @@ class DeadlockDetectorTest {
     CountDownLatch latch2 = new CountDownLatch(1);
 
     ExecutorService executor = Executors.newFixedThreadPool(2,
-        Threads.newNamedDaemonThreadFactory("deadlock-task", (t, e) -> {
-        }));
+        Threads.newNamedDaemonThreadFactory("deadlock-task"));
     executor.execute(new DeadlockTask(lock1, lock2, latch1, latch2));
     latch1.await(2, TimeUnit.SECONDS);
     executor.execute(new DeadlockTask(lock2, lock1, latch2, latch1));
