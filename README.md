@@ -36,3 +36,34 @@ implementation 'com.webotech:service-base:0.0.2'
 ```
 
 **Please use the latest version available in maven central - the version in this page may be old.**
+
+## Quick start
+
+- Create a service class that extends `AbstractAppService`
+- Create a context class that extends `AbstractAppContext`
+- The constructor of the service will need the context, the `PropSubsystem` and the
+  `SupportSubsystem`
+- The service needs a main method that uses `ServiceUtil` to start the service
+
+### Example App
+
+```java
+public class ExampleApp extends AbstractAppService<AppContext> {
+
+  ExampleApp(String[] args) {
+    super(new AppContext("ExampleApp", args)
+        .withSubsystems(List.of(new PropSubsystem<>(), new SupportSubsystem<>())));
+  }
+
+  public static void main(String[] args) {
+    ServiceUtil.startService(new ExampleApp(args));
+  }
+
+  public static class AppContext extends AbstractAppContext<AppContext> {
+
+    protected AppContext(String appName, String[] initArgs) {
+      super(appName, initArgs);
+    }
+  }
+}
+```
