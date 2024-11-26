@@ -41,27 +41,25 @@ implementation 'com.webotech:service-base:0.0.5'
 
 - Create a service class that extends `AbstractAppService`
 - Create a context class that extends `AbstractAppContext`
-- The constructor of the service will need the context, the `PropSubsystem` and the
-  `SupportSubsystem`
+- The constructor of the service will need the context instrumented using `ServiceUtil`
 - The service needs a main method that uses `ServiceUtil` to start the service
 
 ### Example App
 
 ```java
-public class ExampleApp extends AbstractAppService<AppContext> {
+public class ExampleApp extends AbstractAppService<ExampleContext> {
 
   ExampleApp(String[] args) {
-    super(new AppContext("ExampleApp", args)
-        .withSubsystems(List.of(new PropSubsystem<>(), new SupportSubsystem<>())));
+    super(ServiceUtil.instrumentContext(new ExampleContext("ExampleApp", args)));
   }
 
   public static void main(String[] args) {
     ServiceUtil.startService(new ExampleApp(args));
   }
 
-  public static class AppContext extends AbstractAppContext<AppContext> {
+  public static class ExampleContext extends AbstractAppContext<ExampleContext> {
 
-    protected AppContext(String appName, String[] initArgs) {
+    ExampleContext(String appName, String[] initArgs) {
       super(appName, initArgs);
     }
   }

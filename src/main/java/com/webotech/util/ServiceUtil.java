@@ -4,10 +4,20 @@
 
 package com.webotech.util;
 
+import com.webotech.service.PropSubsystem;
+import com.webotech.service.SupportSubsystem;
+import com.webotech.statemachine.service.AbstractAppContext;
 import com.webotech.statemachine.service.api.AppContext;
 import com.webotech.statemachine.service.api.AppService;
+import com.webotech.statemachine.service.api.Subsystem;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ServiceUtil {
+
+  private static final Logger logger = LogManager.getLogger(ServiceUtil.class);
 
   private ServiceUtil() {
     // Not for instanciation outside this class
@@ -23,5 +33,27 @@ public class ServiceUtil {
     } catch (Exception e) {
       appService.stop();
     }
+  }
+
+  /**
+   * Instruments an {@link AbstractAppContext} with these {@link Subsystem} at the beginning of the
+   * list, in order:
+   * <ol>
+   *   <li>{@link PropSubsystem}</li>
+   *   <li>{@link SupportSubsystem}</li>
+   * </ol>
+   */
+  public static <C extends AbstractAppContext<C>> C instrumentContext(C appContext,
+      Subsystem<C>... subsystems) {
+    Subsystem<C>[] standardSubsystems = new Subsystem[]{new PropSubsystem<C>(),
+        new SupportSubsystem<C>()};
+    Subsystem<C>[] allSubsystems = Arrays.copyOf(standardSubsystems,
+        standardSubsystems.length + subsystems.length);
+    System.arraycopy(subsystems, 0, allSubsystems, 2, subsystems.length);
+    logger.info("{} instrumented with the following Subsystems:{}",
+        appContext.getClass().getSimpleName(),
+        Arrays.stream(allSubsystems).map(s -> s.getClass().getName())
+            .collect(Collectors.joining("\n\t", "\n\t", "")));
+    return appContext.withSubsystems(Arrays.asList(allSubsystems));
   }
 }

@@ -4,28 +4,24 @@
 
 package com.webotech;
 
-import com.webotech.ExampleApp.AppContext;
-import com.webotech.service.PropSubsystem;
-import com.webotech.service.SupportSubsystem;
+import com.webotech.ExampleApp.ExampleContext;
 import com.webotech.statemachine.service.AbstractAppContext;
 import com.webotech.statemachine.service.AbstractAppService;
 import com.webotech.util.ServiceUtil;
-import java.util.List;
 
-public class ExampleApp extends AbstractAppService<AppContext> {
+public class ExampleApp extends AbstractAppService<ExampleContext> {
 
   ExampleApp(String[] args) {
-    super(new AppContext("ExampleApp", args)
-        .withSubsystems(List.of(new PropSubsystem<>(), new SupportSubsystem<>())));
+    super(ServiceUtil.instrumentContext(new ExampleContext("ExampleApp", args)));
   }
 
   public static void main(String[] args) {
     ServiceUtil.startService(new ExampleApp(args));
   }
 
-  public static class AppContext extends AbstractAppContext<AppContext> {
+  public static class ExampleContext extends AbstractAppContext<ExampleContext> {
 
-    protected AppContext(String appName, String[] initArgs) {
+    ExampleContext(String appName, String[] initArgs) {
       super(appName, initArgs);
     }
   }
