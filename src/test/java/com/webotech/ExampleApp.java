@@ -4,25 +4,17 @@
 
 package com.webotech;
 
-import com.webotech.ExampleApp.ExampleContext;
-import com.webotech.statemachine.service.AbstractAppContext;
 import com.webotech.statemachine.service.AbstractAppService;
 import com.webotech.util.ServiceUtil;
+import com.webotech.util.ServiceUtil.BasicAppContext;
 
-public class ExampleApp extends AbstractAppService<ExampleContext> {
+public class ExampleApp extends AbstractAppService<BasicAppContext> {
 
   ExampleApp(String[] args) {
-    super(ServiceUtil.instrumentContext(new ExampleContext("ExampleApp", args)));
+    super(ServiceUtil.equipBasicContext("ExampleApp", args));
   }
 
   public static void main(String[] args) {
     ServiceUtil.startService(new ExampleApp(args));
-  }
-
-  public static class ExampleContext extends AbstractAppContext<ExampleContext> {
-
-    ExampleContext(String appName, String[] initArgs) {
-      super(appName, initArgs);
-    }
   }
 }

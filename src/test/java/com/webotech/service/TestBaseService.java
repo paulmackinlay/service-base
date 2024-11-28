@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 public class TestBaseService extends AbstractAppService<TestAppContext> {
 
   TestBaseService(String[] args) {
-    super(ServiceUtil.instrumentContext(
+    super(ServiceUtil.equipContext(
         new TestAppContext(TestBaseService.class.getSimpleName(), args)));
   }
 

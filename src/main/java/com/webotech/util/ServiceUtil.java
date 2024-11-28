@@ -43,7 +43,7 @@ public class ServiceUtil {
    *   <li>{@link SupportSubsystem}</li>
    * </ol>
    */
-  public static <C extends AbstractAppContext<C>> C instrumentContext(C appContext,
+  public static <C extends AbstractAppContext<C>> C equipContext(C appContext,
       Subsystem<C>... subsystems) {
     Subsystem<C>[] standardSubsystems = new Subsystem[]{new PropSubsystem<C>(),
         new SupportSubsystem<C>()};
@@ -55,5 +55,27 @@ public class ServiceUtil {
         Arrays.stream(allSubsystems).map(s -> s.getClass().getName())
             .collect(Collectors.joining("\n\t", "\n\t", "")));
     return appContext.withSubsystems(Arrays.asList(allSubsystems));
+  }
+
+  /**
+   * @return {@link BasicAppContext} that has been equipped in order with a {@link PropSubsystem} and a
+   * {@link SupportSubsystem}
+   */
+  public static BasicAppContext equipBasicContext(String appName, String[] initArgs) {
+    return equipContext(basicContext(appName, initArgs));
+  }
+
+  private static BasicAppContext basicContext(String appName, String[] initArgs) {
+    return new BasicAppContext(appName, initArgs);
+  }
+
+  /**
+   * A basic {@link AbstractAppContext} implementation with no custom data.
+   */
+  public static class BasicAppContext extends AbstractAppContext<BasicAppContext> {
+
+    public BasicAppContext(String appName, String[] initArgs) {
+      super(appName, initArgs);
+    }
   }
 }

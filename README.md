@@ -11,6 +11,8 @@ subsystems and tools to be used as the basis of any app or microservice. It incl
   a [service API](https://github.com/paulmackinlay/state-machine) and a logging API
 - Extensively tested
 
+In the [docs](docs/01-intro.md) you will find examples of how to use this library.
+
 ## Minimum Java Version
 
 This project uses a Java language specification version 17, it is compatible with Java 17 and
@@ -39,29 +41,21 @@ implementation 'com.webotech:service-base:0.0.6'
 
 ## Quick start
 
-- Create a service class that extends `AbstractAppService`
-- Create a context class that extends `AbstractAppContext`
-- The constructor of the service will need the context instrumented using `ServiceUtil`
-- The service needs a main method that uses `ServiceUtil` to start the service
+- Create a service class that extends `AbstractAppService<BasicAppContext>`
+- Use `ServiceUtil` to provide an instrumented `BasicAppContext` in the constructor
+- The service needs a main method that uses `ServiceUtil` to start it
 
 ### Example App
 
 ```java
-public class ExampleApp extends AbstractAppService<ExampleContext> {
+public class ExampleApp extends AbstractAppService<BasicAppContext> {
 
   ExampleApp(String[] args) {
-    super(ServiceUtil.instrumentContext(new ExampleContext("ExampleApp", args)));
+    super(ServiceUtil.equipBasicContext("ExampleApp", args));
   }
 
   public static void main(String[] args) {
     ServiceUtil.startService(new ExampleApp(args));
-  }
-
-  public static class ExampleContext extends AbstractAppContext<ExampleContext> {
-
-    ExampleContext(String appName, String[] initArgs) {
-      super(appName, initArgs);
-    }
   }
 }
 ```

@@ -18,6 +18,7 @@ import com.webotech.service.SupportSubsystem;
 import com.webotech.service.TestAppContext;
 import com.webotech.statemachine.service.api.AppService;
 import com.webotech.statemachine.service.api.Subsystem;
+import com.webotech.util.ServiceUtil.BasicAppContext;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
@@ -51,7 +52,7 @@ class ServiceUtilTest {
   void shouldGetContextWithStandardSubsystems() throws IOException {
     TestAppContext appContext = new TestAppContext("test", new String[0]);
     try (OutputStream logSteam = TestingUtil.initLogCaptureStream()) {
-      appContext = ServiceUtil.instrumentContext(appContext);
+      appContext = ServiceUtil.equipContext(appContext);
       List<Subsystem<TestAppContext>> subsystems = appContext.getSubsystems();
       assertEquals(2, subsystems.size());
       assertInstanceOf(PropSubsystem.class, subsystems.get(0));
@@ -66,12 +67,26 @@ class ServiceUtilTest {
   void shouldGetContextWithStandardSubsystemsAndMore() {
     TestAppContext appContext = new TestAppContext("test", new String[0]);
     Subsystem subsystem = mock(Subsystem.class);
-    appContext = ServiceUtil.instrumentContext(appContext, subsystem);
+    appContext = ServiceUtil.equipContext(appContext, subsystem);
     List<Subsystem<TestAppContext>> subsystems = appContext.getSubsystems();
     assertEquals(3, subsystems.size());
     assertInstanceOf(PropSubsystem.class, subsystems.get(0));
     assertInstanceOf(SupportSubsystem.class, subsystems.get(1));
     assertSame(subsystem, subsystems.get(2));
+  }
+
+  @Test
+  void shouldGetEquippedBasicContext() {
+    String appName = "AnApp";
+    String[] args = new String[0];
+    BasicAppContext appContext = ServiceUtil.equipBasicContext(appName, args);
+    assertSame(args, appContext.getInitArgs());
+    assertSame(appName, appContext.getAppName());
+    List<? extends Class<? extends Subsystem>> subsystemClasses = appContext.getSubsystems()
+        .stream().map(s -> s.getClass()).toList();
+    List<? extends Class<? extends Subsystem>> expectedClasses = List.of(PropSubsystem.class,
+        SupportSubsystem.class);
+    assertEquals(expectedClasses, subsystemClasses);
   }
 
 }
