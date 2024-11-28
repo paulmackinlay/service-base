@@ -50,12 +50,15 @@ import org.apache.logging.log4j.Logger;
  * the same key will override a property defined in a file - this allows you to override a property
  * using command line.
  * <p>
- * You can optionally log all loaded properties and exclude values where keys contain defined
- * {@link String}s by defining these properties
- * {@link PropSubsystem#PROP_KEY_LOG_PROP_VALUES_AFTER_LOAD} and
- * {@link PropSubsystem#PROP_KEY_EXCLUDE_PROP_LOG_FOR_KEYS_CONTAINING_CSV}.
- * <p>
- * Most applications would find it beneficial to define the properties like this:
+ * The following properties allow you to control if and how properties are logged:
+ * <ul>
+ * <li>{@link PropSubsystem#PROP_KEY_LOG_PROP_VALUES_AFTER_LOAD} - controls if properties are logged
+ * and has a default value of <pre>true</pre></li>
+ * <li>{@link PropSubsystem#PROP_KEY_EXCLUDE_PROP_LOG_FOR_KEYS_CONTAINING_CSV} - excludes logging of
+ * property values where keys contain a {@link String} in the CSV and has a default value of
+ * <pre>secret,password,passwd,credential</pre></li>
+ * </ul>
+ * By default, the properties are equivalent to using
  * <pre>
  * com.webotech.service.PropSubsystem.logPropValuesAfterLoad=true
  * com.webotech.service.PropSubsystem.excludePropLogForKeysContainingCsv=secret,password,passwd,credential
@@ -66,14 +69,16 @@ public class PropSubsystem<C extends AppContext<?>> implements Subsystem<C> {
   private static final Logger logger = LogManager.getLogger(PropSubsystem.class);
   public static final String CONFIG_KEY = "config";
   private static final String EXCL_REGEX_PATTERN = "(?i).*%s.*";
+  private static final List defaultExclList = List.of("secret", "password", "passwd", "credential");
+  //TODO what doesn't need escaping
   static final Pattern csvPropPattern = Pattern.compile(
-      "^([a-zA-Z0-9\\.\\-_" + Pattern.quote(File.separator) + "]*)\\,+([a-zA-Z0-9\\."
+      "^([a-zA-Z0-9\\.\\-_" + Pattern.quote(File.separator) + "]*),+([a-zA-Z0-9\\."
           + Pattern.quote(File.separator) + "]*)$");
   static final Pattern propPattern = Pattern.compile(
       "^([a-zA-Z0-9\\.\\-_" + Pattern.quote(File.separator) + "]*)$");
   /**
    * Property key with expected value of true|false to control if properties are logged after
-   * loading.
+   * loading. The default value is true.
    */
   public static final String PROP_KEY_LOG_PROP_VALUES_AFTER_LOAD = "com.webotech.service.PropSubsystem.logPropValuesAfterLoad";
   /**
@@ -93,9 +98,9 @@ public class PropSubsystem<C extends AppContext<?>> implements Subsystem<C> {
   private static void logProps() {
     Map<String, String> loadedProps = new TreeMap<>(PropertyUtil.getProperties());
     logger.info("{} properties loaded", loadedProps.size());
-    if (PropertyUtil.getPropertyAsBoolean(PROP_KEY_LOG_PROP_VALUES_AFTER_LOAD, false)) {
+    if (PropertyUtil.getPropertyAsBoolean(PROP_KEY_LOG_PROP_VALUES_AFTER_LOAD, true)) {
       List<String> keyExcludes = PropertyUtil.getPropertyAsList(
-          PROP_KEY_EXCLUDE_PROP_LOG_FOR_KEYS_CONTAINING_CSV, List.of());
+          PROP_KEY_EXCLUDE_PROP_LOG_FOR_KEYS_CONTAINING_CSV, defaultExclList);
       for (Entry<String, String> entry : loadedProps.entrySet()) {
         String key = entry.getKey();
         String value = cleanValue(keyExcludes, entry);

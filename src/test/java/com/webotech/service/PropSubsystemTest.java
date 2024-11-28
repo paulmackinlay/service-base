@@ -91,17 +91,22 @@ class PropSubsystemTest {
 
   @Test
   void shouldLoadAllPropsFromDir() throws IOException {
-
     try (OutputStream logStream = TestingUtil.initLogCaptureStream()) {
       propSubsystem.start(new TestAppContext("test", new String[]{"config=happy/"}));
       String log = TestingUtil.asNormalisedTxt(logStream);
       assertTrue(log.startsWith("Loading properties\nLoading properties in files "));
-      assertTrue(log.endsWith("]\n4 properties loaded\n"));
+      assertTrue(log.contains("]\n4 properties loaded\n"));
       assertTrue(log.contains("happy/test1.properties"));
       assertTrue(log.contains("happy/test2.properties"));
       assertEquals(
           Map.of("prop3", "value3", "prop4", "value4", "prop1", "value1", "prop2", "value2"),
           PropertyUtil.getProperties());
+      assertTrue(log.contains("""
+          prop1=value1
+          prop2=value2
+          prop3=value3
+          prop4=value4
+          """));
     }
   }
 
