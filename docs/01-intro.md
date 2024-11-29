@@ -11,7 +11,7 @@ Here is a quick recap:
 - the Service API requires you to create single responsibility Subsystems (like one responsible for
   _"bootstrapping properties"_)
 - Subsystems are stored in a List with an implicit order
-- when the app (service) is started it starts each SubSystem in order
+- when the app (service) is started it starts each Subsystem in order
 - when the app is stopped each Subsystem is stopped in reverse order
 - the service API has `start` and `stop` methods for starting and stopping the app
 
