@@ -29,9 +29,9 @@ The following Subsystems and utilities are avialable.
 ### [PropSubsystem](../src/main/java/com/webotech/service/PropSubsystem.java) - bootstraps properties
 
 The PropSubsystem initializes Property based configuration that can be used throughout an app.
-Properies are loaded when the Subsystem starts and unloaded when it stops. Properties can be
-accessed using [PropertyUtil](../src/main/java/com/webotech/util/PropertyUtil.java). There are
-mechanisms for overriding, defaulting and converting properties into useful java constructs.
+Properties are loaded when the Subsystem starts and unloaded when it stops, they can be accessed
+using [PropertyUtil](../src/main/java/com/webotech/util/PropertyUtil.java). There are mechanisms for
+overriding, defaulting and converting properties into useful java constructs.
 
 ### [SupportSubsystem](../src/main/java/com/webotech/service/SupportSubsystem.java) - logs process fundamentals
 
