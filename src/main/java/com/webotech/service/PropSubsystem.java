@@ -29,7 +29,7 @@ import org.apache.logging.log4j.Logger;
  * Properties are loaded from one or more files that are defined using a System property with key
  * {@link PropSubsystem#CONFIG_KEY} or a command line argument like
  * <i>config=config.properties</i>.
- * The System property will override the argument.
+ * If both are defined, the System property will override the argument.
  * <p>
  * You can define a single property file, a comma separated list or a directory that contains
  * multiple *.properties files. Note that property file names should contain characters that are

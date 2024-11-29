@@ -35,12 +35,14 @@ import org.apache.logging.log4j.Logger;
  * <p>
  * {@link SupportSubsystem#supportData} is logged by default, this contains information about the
  * host, the process and the JVM. Sometimes to diagnose an issue with a process it is important to
- * understand the context in which it is running, this will provide that. It can be disabled using
- * the {@link SupportSubsystem#PROP_KEY_ENABLE_SUPPORT_DATA_LOGGING} property.
+ * understand the context in which it is running, this will provide that context. It can be
+ * disabled
+ * using the {@link SupportSubsystem#PROP_KEY_ENABLE_SUPPORT_DATA_LOGGING} property.
  * <p>
- * Deadlock detection is started by default where a dedicated thread checks for deadlocks within the
- * process at a fixed period. If any are found the details of the locked treads are logged. These
- * properties can be used to control if it is enabled and various other aspects of how it works:
+ * Deadlock detection is started by default where a dedicated thread checks for deadlocks within
+ * the process at a fixed period of 60 seconds. If any are found the details of the locked threads
+ * are logged. These properties can be used to control if it is enabled and various other aspects
+ * of how it works:
  * <ul>
  * <li>{@link SupportSubsystem#PROP_KEY_ENABLE_DEADLOCK_DETECTION}</li>
  * <li>{@link SupportSubsystem#PROP_KEY_DEADLOCK_DETECTION_PERIOD_ISO8601}</li>
@@ -50,6 +52,14 @@ import org.apache.logging.log4j.Logger;
  * can be reliably detected. This {@link Subsystem} does it programmatically, the alternative is to
  * guess a deadlock has a happened and then grab a thread dump or use visual tool
  * to confirm.
+ * <p>
+ * By default, the properties are equivalent to using
+ * <pre>
+ * com.webotech.service.SupportSubsystem.enableSupportDataLogging=true
+ * com.webotech.service.SupportSubsystem.enableDeadlockDetection=true
+ * com.webotech.service.SupportSubsystem.deadlockDetectionPeriodIso8601=PT60S
+ * com.webotech.service.SupportSubsystem.stopDeadlockDetectionTimeoutIso8601=PT5S
+ * </pre>
  */
 public class SupportSubsystem<C extends AppContext<?>> implements Subsystem<C> {
 
@@ -112,22 +122,23 @@ public class SupportSubsystem<C extends AppContext<?>> implements Subsystem<C> {
   public static final SupportData supportData = new SupportData(hostMap, processMap, jvmMap);
   /**
    * Property key with expected value of true|false to control if
-   * {@link SupportSubsystem#supportData} is logged.
+   * {@link SupportSubsystem#supportData} is logged. By default it is true.
    */
   public static final String PROP_KEY_ENABLE_SUPPORT_DATA_LOGGING = "com.webotech.service.SupportSubsystem.enableSupportDataLogging";
   /**
    * Property key with expected value of true|false to control if deadlock detection is enabled.
-   * Note that detection will use a dedicated thread to periodically check for deadlocks.
+   * Note that detection will use a dedicated thread to periodically check for deadlocks. By default
+   * it is true.
    */
   public static final String PROP_KEY_ENABLE_DEADLOCK_DETECTION = "com.webotech.service.SupportSubsystem.enableDeadlockDetection";
   /**
    * Property key with expected value of an ISO 8601 formatted time period used to configure the
-   * period between deadlock checks.
+   * period between deadlock checks. By default it is set to 60 seconds.
    */
   public static final String PROP_KEY_DEADLOCK_DETECTION_PERIOD_ISO8601 = "com.webotech.service.SupportSubsystem.deadlockDetectionPeriodIso8601";
   /**
    * Property key with expected value of an ISO 8601 formatted time period used to define the
-   * timeout for stopping deadlock detection.
+   * timeout for stopping deadlock detection. By default it is set to 5 seconds.
    */
   public static final String PROP_KEY_STOP_DEADLOCK_DETECTION_TIMEOUT_ISO8601 = "com.webotech.service.SupportSubsystem.stopDeadlockDetectionTimeoutIso8601";
   private final DeadlockDetector deadlockDetector;
@@ -156,5 +167,4 @@ public class SupportSubsystem<C extends AppContext<?>> implements Subsystem<C> {
       deadlockDetector.stopDetecting(iso8601Timeout);
     }
   }
-
 }
