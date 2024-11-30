@@ -11,9 +11,9 @@ Here is a quick recap:
 - the Service API requires you to create single responsibility Subsystems (like one responsible for
   _"bootstrapping properties"_)
 - Subsystems are stored in a List with an implicit order
-- when the app (service) is started it starts each Subsystem in order
-- when the app is stopped each Subsystem is stopped in reverse order
-- the service API has `start` and `stop` methods for starting and stopping the app
+- when the app (service) is started, it starts each Subsystem in order
+- when the app is stopped, each Subsystem is stopped in reverse order
+- the service API provides an AppContext where app-level state can be stored
 
 The [service-base](https://github.com/paulmackinlay/service-base) library builds upon the service
 API, it contains essential and general functionality which forms the basis of an app. The library is
@@ -31,15 +31,14 @@ The following Subsystems and utilities are avialable.
 The PropSubsystem initializes Property based configuration that can be used throughout an app.
 Properties are loaded when the Subsystem starts and unloaded when it stops, they can be accessed
 using [PropertyUtil](../src/main/java/com/webotech/util/PropertyUtil.java). There are mechanisms for
-overriding, defaulting and converting properties into useful java constructs.
+logging, overriding, defaulting and converting properties into useful java constructs.
 
 ### [SupportSubsystem](../src/main/java/com/webotech/service/SupportSubsystem.java) - logs process fundamentals
 
-The SupportSubsystem logs fundamental information about the process, host and JVM. This information
-is useful for 3rd line support. It also has a deadlock detection mechanism (that can be disabled) to
-help resolve deadlock problems related to
-threads. [SupportData](../src/main/java/com/webotech/service/data/SupportData.java) is made
-available statically so it can be used by other parts of an application.
+The SupportSubsystem logs fundamental information about the process, host and JVM. It has a deadlock
+detection mechanism that logs thread information when deadlocked. Logging this information is useful
+for 3rd line support. [SupportData](../src/main/java/com/webotech/service/data/SupportData.java) is
+also made available statically so it can be used by other parts of an application.
 
 ### Utilities
 
