@@ -42,7 +42,7 @@ implementation 'com.webotech:service-base:0.0.7'
 ## Quick start
 
 - Create a service class that extends `AbstractAppService<BasicAppContext>`
-- Use `ServiceUtil` to provide an instrumented `BasicAppContext` in the constructor
+- Use `ServiceUtil` to provide a `BasicAppContext` equipped with recommended Subsystems
 - The service needs a main method that uses `ServiceUtil` to start it
 
 ### Example App
