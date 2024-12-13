@@ -59,10 +59,11 @@ public class ServiceUtil {
 
   /**
    * @return {@link BasicAppContext} that has been equipped in order with a {@link PropSubsystem} and a
-   * {@link SupportSubsystem}
+   * {@link SupportSubsystem} followed by any supplied {@link Subsystem}s.
    */
-  public static BasicAppContext equipBasicContext(String appName, String[] initArgs) {
-    return equipContext(basicContext(appName, initArgs));
+  public static BasicAppContext equipBasicContext(String appName, String[] initArgs,
+      Subsystem<BasicAppContext>... subsystems) {
+    return equipContext(basicContext(appName, initArgs), subsystems);
   }
 
   private static BasicAppContext basicContext(String appName, String[] initArgs) {

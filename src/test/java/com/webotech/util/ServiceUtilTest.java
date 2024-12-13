@@ -89,4 +89,22 @@ class ServiceUtilTest {
     assertEquals(expectedClasses, subsystemClasses);
   }
 
+  @Test
+  void shouldGetEquippedBasicContextWithSubsystems() {
+    Subsystem<BasicAppContext> subsystem1 = mock(Subsystem.class);
+    Subsystem<BasicAppContext> subsystem2 = mock(Subsystem.class);
+    String appName = "AnApp";
+    String[] args = new String[0];
+    BasicAppContext appContext = ServiceUtil.equipBasicContext(appName, args, subsystem1,
+        subsystem2);
+    assertSame(args, appContext.getInitArgs());
+    assertSame(appName, appContext.getAppName());
+    List<Subsystem<BasicAppContext>> subsystems = appContext.getSubsystems();
+    List<? extends Class<? extends Subsystem>> subsystemClasses = subsystems
+        .stream().map(s -> s.getClass()).toList();
+    assertEquals(PropSubsystem.class, subsystemClasses.get(0));
+    assertEquals(SupportSubsystem.class, subsystemClasses.get(1));
+    assertSame(subsystem1, subsystems.get(2));
+    assertSame(subsystem2, subsystems.get(3));
+  }
 }

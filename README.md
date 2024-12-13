@@ -27,14 +27,14 @@ to start using it just add this dependency to your POM.
 <dependency>
     <groupId>com.webotech</groupId>
     <artifactId>service-base</artifactId>
-    <version>0.0.7</version>
+    <version>0.0.8</version>
 </dependency>
 ```
 
 or this dependency in gradle
 
 ```groovy
-implementation 'com.webotech:service-base:0.0.7'
+implementation 'com.webotech:service-base:0.0.8'
 ```
 
 **Please use the latest version available in maven central - the version in this page may be old.**
