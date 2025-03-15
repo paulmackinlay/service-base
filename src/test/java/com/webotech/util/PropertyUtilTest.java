@@ -28,8 +28,7 @@ class PropertyUtilTest {
 
   @BeforeEach
   void setup() {
-    PropertyUtil.getPropertiesAsMap().keySet().stream()
-        .forEach(c -> PropertyUtil.removeProperty(c));
+    PropertyUtil.getPropertiesAsMap().keySet().stream().forEach(PropertyUtil::removeProperty);
     assertTrue(PropertyUtil.getPropertiesAsMap().isEmpty());
     PropertyUtil.getProperty("blah", "blah");
   }

@@ -1,17 +1,8 @@
 /*
- * Copyright (c) 2024 Paul Mackinlay <paul.mackinlay@gmail.com>
+ * Copyright (c) 2024-2025 Paul Mackinlay <paul.mackinlay@gmail.com>
  */
 
 package com.webotech.service.support;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import com.webotech.TestingUtil;
 import com.webotech.statemachine.util.Threads;
@@ -24,10 +15,18 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class DeadlockDetectorTest {
 
@@ -53,8 +52,7 @@ class DeadlockDetectorTest {
           eq(10000L), eq(TimeUnit.MILLISECONDS));
       deadlockDetector.stopDetecting("PT0.2S");
       verify(scheduledExecutorService, times(1)).shutdownNow();
-      verify(scheduledExecutorService, times(1)).awaitTermination(eq(200L),
-          eq(TimeUnit.MILLISECONDS));
+      verify(scheduledExecutorService, times(1)).awaitTermination(200L, TimeUnit.MILLISECONDS);
     }
   }
 

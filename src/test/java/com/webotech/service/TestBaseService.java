@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Paul Mackinlay <paul.mackinlay@gmail.com>
+ * Copyright (c) 2024-2025 Paul Mackinlay <paul.mackinlay@gmail.com>
  */
 
 package com.webotech.service;
@@ -31,7 +31,7 @@ public class TestBaseService extends AbstractAppService<TestAppContext> {
   private static void scheduleServiceStop(TestBaseService testBaseService, int seconds) {
     ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(
         Threads.newNamedDaemonThreadFactory("a-dopo"));
-    executor.schedule(() -> testBaseService.stop(), seconds, TimeUnit.SECONDS);
+    executor.schedule(testBaseService::stop, seconds, TimeUnit.SECONDS);
   }
 
   private static String[] getManagedArgs(String[] args) {

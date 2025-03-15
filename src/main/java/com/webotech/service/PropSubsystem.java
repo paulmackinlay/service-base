@@ -69,7 +69,8 @@ public class PropSubsystem<C extends AppContext<?>> implements Subsystem<C> {
   private static final Logger logger = LogManager.getLogger(PropSubsystem.class);
   public static final String CONFIG_KEY = "config";
   private static final String EXCL_REGEX_PATTERN = "(?i).*%s.*";
-  private static final List defaultExclList = List.of("secret", "password", "passwd", "credential");
+  private static final List<String> defaultExclList = List.of("secret", "password", "passwd",
+      "credential");
   static final Pattern csvPropPattern = Pattern.compile(
       "^([a-zA-Z0-9\\.\\-_" + Pattern.quote(File.separator) + "]*),+([a-zA-Z0-9\\."
           + Pattern.quote(File.separator) + "]*)$");

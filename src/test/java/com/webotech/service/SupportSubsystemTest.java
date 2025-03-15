@@ -1,11 +1,8 @@
 /*
- * Copyright (c) 2024 Paul Mackinlay <paul.mackinlay@gmail.com>
+ * Copyright (c) 2024-2025 Paul Mackinlay <paul.mackinlay@gmail.com>
  */
 
 package com.webotech.service;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.webotech.TestingUtil;
 import com.webotech.service.data.SupportData;
@@ -17,12 +14,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class SupportSubsystemTest {
 
-  private final static TestAppContext testAppContext = new TestAppContext("test", new String[0]);
+  private static final TestAppContext testAppContext = new TestAppContext("test", new String[0]);
   private SupportSubsystem<TestAppContext> supportSubsystem;
 
   @BeforeEach

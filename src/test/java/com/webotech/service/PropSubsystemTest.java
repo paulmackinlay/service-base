@@ -26,8 +26,7 @@ class PropSubsystemTest {
     PropertyUtil.getPropertyAsBoolean("any", false);
     propSubsystem = new PropSubsystem<>();
     System.getProperties().keySet().stream().forEach(k -> System.clearProperty(String.valueOf(k)));
-    PropertyUtil.getPropertiesAsMap().keySet().stream()
-        .forEach(k -> PropertyUtil.removeProperty(k));
+    PropertyUtil.getPropertiesAsMap().keySet().stream().forEach(PropertyUtil::removeProperty);
   }
 
   @Test

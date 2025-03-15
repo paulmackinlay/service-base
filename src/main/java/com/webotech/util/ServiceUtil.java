@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Paul Mackinlay <paul.mackinlay@gmail.com>
+ * Copyright (c) 2024-2025 Paul Mackinlay <paul.mackinlay@gmail.com>
  */
 
 package com.webotech.util;
@@ -50,10 +50,12 @@ public class ServiceUtil {
     Subsystem<C>[] allSubsystems = Arrays.copyOf(standardSubsystems,
         standardSubsystems.length + subsystems.length);
     System.arraycopy(subsystems, 0, allSubsystems, 2, subsystems.length);
-    logger.info("{} instrumented with the following Subsystems:{}",
-        appContext.getClass().getSimpleName(),
-        Arrays.stream(allSubsystems).map(s -> s.getClass().getName())
-            .collect(Collectors.joining("\n\t", "\n\t", "")));
+    if (logger.isInfoEnabled()) {
+      logger.info("{} instrumented with the following Subsystems:{}",
+          appContext.getClass().getSimpleName(),
+          Arrays.stream(allSubsystems).map(s -> s.getClass().getName())
+              .collect(Collectors.joining("\n\t", "\n\t", "")));
+    }
     return appContext.withSubsystems(Arrays.asList(allSubsystems));
   }
 

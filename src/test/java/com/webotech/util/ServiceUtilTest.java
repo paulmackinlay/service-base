@@ -1,16 +1,8 @@
 /*
- * Copyright (c) 2024 Paul Mackinlay <paul.mackinlay@gmail.com>
+ * Copyright (c) 2024-2025 Paul Mackinlay <paul.mackinlay@gmail.com>
  */
 
 package com.webotech.util;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 import com.webotech.TestingUtil;
 import com.webotech.service.PropSubsystem;
@@ -22,8 +14,15 @@ import com.webotech.util.ServiceUtil.BasicAppContext;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 class ServiceUtilTest {
 
