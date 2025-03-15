@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Paul Mackinlay <paul.mackinlay@gmail.com>
+ * Copyright (c) 2024-2025 Paul Mackinlay <paul.mackinlay@gmail.com>
  */
 
 package com.webotech.util;
@@ -163,12 +163,21 @@ public final class PropertyUtil {
   }
 
   /**
-   * @return the loaded properties
+   * @return a copy of the loaded properties as an unmodifiable {@link Map}
    */
-  public static Map<String, String> getProperties() {
+  public static Map<String, String> getPropertiesAsMap() {
     return config.entrySet().stream()
         .collect(
             Collectors.toUnmodifiableMap(e -> e.getKey().toString(), e -> e.getValue().toString()));
+  }
+
+  /**
+   * @return a copy of the loaded properties as {@link Properties}
+   */
+  public static Properties getPropertiesCopy() {
+    Properties properties = new Properties();
+    properties.putAll(config);
+    return properties;
   }
 
   /**

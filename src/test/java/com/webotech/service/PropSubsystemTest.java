@@ -1,12 +1,8 @@
 /*
- * Copyright (c) 2024 Paul Mackinlay <paul.mackinlay@gmail.com>
+ * Copyright (c) 2024-2025 Paul Mackinlay <paul.mackinlay@gmail.com>
  */
 
 package com.webotech.service;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.webotech.TestingUtil;
 import com.webotech.util.PropertyUtil;
@@ -15,6 +11,9 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -27,7 +26,8 @@ class PropSubsystemTest {
     PropertyUtil.getPropertyAsBoolean("any", false);
     propSubsystem = new PropSubsystem<>();
     System.getProperties().keySet().stream().forEach(k -> System.clearProperty(String.valueOf(k)));
-    PropertyUtil.getProperties().keySet().stream().forEach(k -> PropertyUtil.removeProperty(k));
+    PropertyUtil.getPropertiesAsMap().keySet().stream()
+        .forEach(k -> PropertyUtil.removeProperty(k));
   }
 
   @Test
@@ -100,7 +100,7 @@ class PropSubsystemTest {
       assertTrue(log.contains("happy/test2.properties"));
       assertEquals(
           Map.of("prop3", "value3", "prop4", "value4", "prop1", "value1", "prop2", "value2"),
-          PropertyUtil.getProperties());
+          PropertyUtil.getPropertiesAsMap());
       assertTrue(log.contains("""
           prop1=value1
           prop2=value2

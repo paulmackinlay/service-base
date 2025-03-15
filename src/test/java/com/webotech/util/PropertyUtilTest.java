@@ -1,18 +1,20 @@
 /*
- * Copyright (c) 2024 Paul Mackinlay <paul.mackinlay@gmail.com>
+ * Copyright (c) 2024-2025 Paul Mackinlay <paul.mackinlay@gmail.com>
  */
 
 package com.webotech.util;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -26,8 +28,9 @@ class PropertyUtilTest {
 
   @BeforeEach
   void setup() {
-    PropertyUtil.getProperties().keySet().stream().forEach(c -> PropertyUtil.removeProperty(c));
-    assertTrue(PropertyUtil.getProperties().isEmpty());
+    PropertyUtil.getPropertiesAsMap().keySet().stream()
+        .forEach(c -> PropertyUtil.removeProperty(c));
+    assertTrue(PropertyUtil.getPropertiesAsMap().isEmpty());
     PropertyUtil.getProperty("blah", "blah");
   }
 
@@ -35,13 +38,13 @@ class PropertyUtilTest {
   void shouldLoadAllPropFilesFromResourceDir() {
     PropertyUtil.loadAllPropertyResources("happy/");
     assertEquals(Map.of("prop1", "value1", "prop2", "value2", "prop3", "value3", "prop4", "value4"),
-        PropertyUtil.getProperties());
+        PropertyUtil.getPropertiesAsMap());
   }
 
   @Test
   void shouldLoadPropsFromResource() {
     PropertyUtil.loadPropertyResources("test1.properties");
-    Map<String, String> props = PropertyUtil.getProperties();
+    Map<String, String> props = PropertyUtil.getPropertiesAsMap();
     assertEquals(5, props.size());
     assertEquals(expectedProps1, props);
   }
@@ -49,7 +52,7 @@ class PropertyUtilTest {
   @Test
   void shouldLoadPropsFromResources() {
     PropertyUtil.loadPropertyResources("test1.properties", "test2.properties");
-    Map<String, String> props = PropertyUtil.getProperties();
+    Map<String, String> props = PropertyUtil.getPropertiesAsMap();
     assertEquals(6, props.size());
     Map<String, String> expectedProps = new HashMap<>(expectedProps1);
     expectedProps.putAll(expectedProps2);
@@ -59,7 +62,7 @@ class PropertyUtilTest {
   @Test
   void shouldLoadPropsFromFile() {
     PropertyUtil.loadPropertyFiles("src/test/resources/test1.properties");
-    Map<String, String> props = PropertyUtil.getProperties();
+    Map<String, String> props = PropertyUtil.getPropertiesAsMap();
     assertEquals(5, props.size());
     assertEquals(expectedProps1, props);
   }
@@ -68,7 +71,7 @@ class PropertyUtilTest {
   void shouldLoadPropsFromFiles() {
     PropertyUtil.loadPropertyFiles("src/test/resources/test1.properties",
         "src/test/resources/test2.properties");
-    Map<String, String> props = PropertyUtil.getProperties();
+    Map<String, String> props = PropertyUtil.getPropertiesAsMap();
     assertEquals(6, props.size());
     Map<String, String> expectedProps = new HashMap<>(expectedProps1);
     expectedProps.putAll(expectedProps2);
@@ -78,7 +81,7 @@ class PropertyUtilTest {
   @Test
   void shouldLoadPropsFromDirectory() {
     PropertyUtil.loadAllPropertyFiles("src/test/resources/happy");
-    Map<String, String> props = PropertyUtil.getProperties();
+    Map<String, String> props = PropertyUtil.getPropertiesAsMap();
     assertEquals(4, props.size());
     assertEquals(expectedProps3, props);
   }
@@ -153,7 +156,7 @@ class PropertyUtilTest {
     PropertyUtil.loadPropertyResources("test1.properties");
     assertEquals("a-value", PropertyUtil.getProperty("prop1", ""));
     String prev = PropertyUtil.removeProperty("prop1");
-    assertFalse(PropertyUtil.getProperties().containsKey("prop1"));
+    assertFalse(PropertyUtil.getPropertiesAsMap().containsKey("prop1"));
     assertEquals("a-value", prev);
   }
 
@@ -163,7 +166,7 @@ class PropertyUtilTest {
       System.setProperty("prop1", "a-sys-value");
       PropertyUtil.loadPropertyResources("test1.properties");
       assertEquals("a-sys-value", PropertyUtil.getProperty("prop1", ""));
-      assertFalse(PropertyUtil.getProperties().containsKey("prop1"));
+      assertFalse(PropertyUtil.getPropertiesAsMap().containsKey("prop1"));
     } finally {
       System.clearProperty("prop1");
     }
@@ -190,5 +193,22 @@ class PropertyUtilTest {
     assertTrue(PropertyUtil.isResourceDir("happy/"));
     assertFalse(PropertyUtil.isResourceDir("not-a-directory"));
     assertFalse(PropertyUtil.isResourceDir("config.properties"));
+  }
+
+  @Test
+  void shouldGetPropertiesCopy() {
+    Properties properties1 = PropertyUtil.getPropertiesCopy();
+    Properties properties2 = PropertyUtil.getPropertiesCopy();
+    assertNotSame(properties1, properties2);
+
+    PropertyUtil.loadAllPropertyFiles("src/test/resources/happy");
+    Map<String, String> propsMap = PropertyUtil.getPropertiesAsMap();
+    Properties properties = PropertyUtil.getPropertiesCopy();
+    assertEquals(propsMap, properties);
+    assertNotEquals(properties1, properties);
+    assertNotEquals(properties2, properties);
+
+    PropertyUtil.setProperty("a-new-test-key", "a-value");
+    assertNotEquals(properties, PropertyUtil.getPropertiesAsMap());
   }
 }

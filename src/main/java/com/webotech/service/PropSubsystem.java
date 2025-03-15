@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Paul Mackinlay <paul.mackinlay@gmail.com>
+ * Copyright (c) 2024-2025 Paul Mackinlay <paul.mackinlay@gmail.com>
  */
 
 package com.webotech.service;
@@ -95,7 +95,7 @@ public class PropSubsystem<C extends AppContext<?>> implements Subsystem<C> {
   }
 
   private static void logProps() {
-    Map<String, String> loadedProps = new TreeMap<>(PropertyUtil.getProperties());
+    Map<String, String> loadedProps = new TreeMap<>(PropertyUtil.getPropertiesAsMap());
     logger.info("{} properties loaded", loadedProps.size());
     if (PropertyUtil.getPropertyAsBoolean(PROP_KEY_LOG_PROP_VALUES_AFTER_LOAD, true)) {
       List<String> keyExcludes = PropertyUtil.getPropertyAsList(
@@ -151,7 +151,7 @@ public class PropSubsystem<C extends AppContext<?>> implements Subsystem<C> {
   @Override
   public void stop(C appContext) {
     logger.info("Unloading properties");
-    PropertyUtil.getProperties().keySet().forEach(PropertyUtil::removeProperty);
+    PropertyUtil.getPropertiesAsMap().keySet().forEach(PropertyUtil::removeProperty);
   }
 
   static List<String> parse(String txt) {
