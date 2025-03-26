@@ -14,6 +14,7 @@ import com.webotech.util.ServiceUtil.BasicAppContext;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -23,14 +24,17 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class ServiceUtilTest {
 
   private AppService<TestAppContext> appService;
+  private AppService<BasicAppContext> basicAppService;
 
   @BeforeEach
   void setup() {
     appService = mock(AppService.class);
+    basicAppService = mock(AppService.class);
   }
 
   @Test
@@ -46,6 +50,31 @@ class ServiceUtilTest {
     ServiceUtil.startService(appService);
     verify(appService, times(1)).stop();
   }
+
+  @Test
+  void shouldRunPreStartLogic() {
+    AtomicReference<TestAppContext> refToContext = new AtomicReference<>();
+    ServiceUtil.startService(appService, a -> refToContext.set(a.getAppContext()));
+    assertSame(appService.getAppContext(), refToContext.get());
+  }
+
+  @Test
+  void shouldRunPreStartLogicBeforeStartException() {
+    AtomicReference<TestAppContext> refToContext = new AtomicReference<>();
+    IllegalStateException exception = new IllegalStateException("test induced");
+    doThrow(exception).when(appService).start();
+    ServiceUtil.startService(appService, a -> refToContext.set(a.getAppContext()));
+    assertSame(appService.getAppContext(), refToContext.get());
+    verify(appService, times(1)).stop();
+  }
+
+  @Test
+  void shouldSetAppServiceOnContext() {
+    when(basicAppService.getAppContext()).thenReturn(new BasicAppContext("appName", null));
+    ServiceUtil.startService(basicAppService);
+    assertSame(basicAppService, basicAppService.getAppContext().getAppService());
+  }
+
 
   @Test
   void shouldGetContextWithStandardSubsystems() throws IOException {
