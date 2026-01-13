@@ -85,7 +85,10 @@ class ServiceUtilTest {
       assertEquals(2, subsystems.size());
       assertInstanceOf(PropSubsystem.class, subsystems.get(0));
       assertInstanceOf(SupportSubsystem.class, subsystems.get(1));
-      assertEquals("TestAppContext instrumented with the following Subsystems:\n"
+      assertEquals("Loading properties\n"
+          + "Loading properties from resource [config.properties]\n"
+          + "0 properties loaded\n"
+          + "TestAppContext instrumented with the following Subsystems:\n"
           + "\tcom.webotech.service.PropSubsystem\n"
           + "\tcom.webotech.service.SupportSubsystem\n", TestingUtil.asNormalisedTxt(logSteam));
     }

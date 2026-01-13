@@ -63,7 +63,7 @@ public class ServiceUtil {
    */
   public static <C extends AbstractAppContext<C>> C equipContext(C appContext,
       Subsystem<C>... subsystems) {
-    Subsystem<C>[] standardSubsystems = new Subsystem[]{new PropSubsystem<C>(),
+    Subsystem<C>[] standardSubsystems = new Subsystem[]{new PropSubsystem<C>(appContext.getInitArgs()),
         new SupportSubsystem<C>()};
     Subsystem<C>[] allSubsystems = Arrays.copyOf(standardSubsystems,
         standardSubsystems.length + subsystems.length);

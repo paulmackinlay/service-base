@@ -23,8 +23,11 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * A {@link Subsystem} that loads properties for use within an application. This should be the
- * first subsystem that is used, once started properties can be accessed statically using
- * {@link PropertyUtil}.
+ * first subsystem that is used. Properties can be initialized immediately then the subsystem is
+ * constructed or when it is started. Once properties have been initialized, they can be accessed
+ * statically using {@link PropertyUtil}. An advantage of properties initialized immediately is
+ * that accessing them using {@link PropertyUtil} can be done in the constructor of any objects
+ * constructed subsequently.
  * <p>
  * Properties are loaded from one or more files that are defined using a System property with key
  * {@link PropSubsystem#CONFIG_KEY} or a command line argument like
@@ -46,7 +49,7 @@ import org.apache.logging.log4j.Logger;
  * internally packaged <i>config.properties</i> resource.
  * <p>
  * Loaded properties are stripped of leading/trailing whitespace and properties with duplicate keys
- * will cause an {@link IllegalStateException}. While loading properties a System property with
+ * will cause an {@link IllegalStateException}. While loading properties, a System property with
  * the same key will override a property defined in a file - this allows you to override a property
  * using command line.
  * <p>
@@ -86,11 +89,36 @@ public class PropSubsystem<C extends AppContext<?>> implements Subsystem<C> {
    * not logged. Generally used to obscure sensitive information in logs.
    */
   public static final String PROP_KEY_EXCLUDE_PROP_LOG_FOR_KEYS_CONTAINING_CSV = "com.webotech.service.PropSubsystem.excludePropLogForKeysContainingCsv";
+  private final boolean initPropsImmediately;
+
+  /**
+   * Initializes properties based on initArgs during construction
+   */
+  public PropSubsystem(String[] initArgs) {
+    this(initArgs, true);
+  }
+
+  /**
+   * If initPropsImmediately is true properties based on initArgs are initialized during construction otherwise they are initialized when
+   * {@link PropSubsystem} starts.
+   */
+  public PropSubsystem(String[] initArgs, boolean initPropsImmediately) {
+    this.initPropsImmediately = initPropsImmediately;
+    if (initPropsImmediately) {
+      initProps(initArgs);
+    }
+  }
 
   @Override
   public void start(C appContext) {
+    if (!initPropsImmediately) {
+      initProps(appContext.getInitArgs());
+    }
+  }
+
+  private static void initProps(String[] initArgs) {
     logger.info("Loading properties");
-    List<String> propFiles = determinePropFiles(appContext.getInitArgs());
+    List<String> propFiles = determinePropFiles(initArgs);
     loadProps(propFiles);
     logProps();
   }

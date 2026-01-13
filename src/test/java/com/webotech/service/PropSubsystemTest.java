@@ -24,7 +24,7 @@ class PropSubsystemTest {
   @BeforeEach
   void setup() {
     PropertyUtil.getPropertyAsBoolean("any", false);
-    propSubsystem = new PropSubsystem<>();
+    propSubsystem = new PropSubsystem<>(new String[0], false);
     System.getProperties().keySet().stream().forEach(k -> System.clearProperty(String.valueOf(k)));
     PropertyUtil.getPropertiesAsMap().keySet().stream().forEach(PropertyUtil::removeProperty);
   }
@@ -34,6 +34,33 @@ class PropSubsystemTest {
     try (OutputStream logStream = TestingUtil.initLogCaptureStream()) {
       System.setProperty("config", "test3.properties");
       propSubsystem.start(new TestAppContext("test", new String[0]));
+      String log = TestingUtil.asNormalisedTxt(logStream);
+      assertEquals("""
+              Loading properties
+              Loading properties from resource [test3.properties]
+              8 properties loaded
+              com.webotech.service.PropSubsystem.excludePropLogForKeysContainingCsv=secret,password,passwd,credentials
+              com.webotech.service.PropSubsystem.logPropValuesAfterLoad=true
+              db.passwd=***
+              prop1=a-value
+              prop2=true
+              prop3=false
+              prop4=one,two,three
+              prop5=23
+              """,
+          log);
+      assertEquals(List.of("one", "two", "three"),
+          PropertyUtil.getPropertyAsList("prop4", List.of()));
+    } finally {
+      System.clearProperty("config");
+    }
+  }
+
+  @Test
+  void shouldLoadPropsAndLogThemWithExclusionsImmediately() throws IOException {
+    try (OutputStream logStream = TestingUtil.initLogCaptureStream()) {
+      System.setProperty("config", "test3.properties");
+      new PropSubsystem<>(new String[0]);
       String log = TestingUtil.asNormalisedTxt(logStream);
       assertEquals("""
               Loading properties
@@ -75,6 +102,24 @@ class PropSubsystemTest {
   }
 
   @Test
+  void shouldLoadNoPropsUsingSystemKeyImmediately() throws IOException {
+    try (OutputStream logStream = TestingUtil.initLogCaptureStream()) {
+      System.setProperty("config", "a-non-existant-prop-file.properties");
+      new PropSubsystem(new String[0]);
+      String log = TestingUtil.asNormalisedTxt(logStream);
+      assertEquals("""
+              Loading properties
+              Loading properties from resource [a-non-existant-prop-file.properties]
+              Properties stream does not exist
+              0 properties loaded
+              """,
+          log);
+    } finally {
+      System.clearProperty("config");
+    }
+  }
+
+  @Test
   void shouldLoadNoProps() throws IOException {
     try (OutputStream logStream = TestingUtil.initLogCaptureStream()) {
       propSubsystem.start(new TestAppContext("test", new String[0]));
@@ -89,9 +134,44 @@ class PropSubsystemTest {
   }
 
   @Test
+  void shouldLoadNoPropsImmediately() throws IOException {
+    try (OutputStream logStream = TestingUtil.initLogCaptureStream()) {
+      new PropSubsystem(new String[0]);
+      String log = TestingUtil.asNormalisedTxt(logStream);
+      assertEquals("""
+              Loading properties
+              Loading properties from resource [config.properties]
+              0 properties loaded
+              """,
+          log);
+    }
+  }
+
+  @Test
   void shouldLoadAllPropsFromDir() throws IOException {
     try (OutputStream logStream = TestingUtil.initLogCaptureStream()) {
       propSubsystem.start(new TestAppContext("test", new String[]{"config=happy/"}));
+      String log = TestingUtil.asNormalisedTxt(logStream);
+      assertTrue(log.startsWith("Loading properties\nLoading properties in files "));
+      assertTrue(log.contains("]\n4 properties loaded\n"));
+      assertTrue(log.contains("happy/test1.properties"));
+      assertTrue(log.contains("happy/test2.properties"));
+      assertEquals(
+          Map.of("prop3", "value3", "prop4", "value4", "prop1", "value1", "prop2", "value2"),
+          PropertyUtil.getPropertiesAsMap());
+      assertTrue(log.contains("""
+          prop1=value1
+          prop2=value2
+          prop3=value3
+          prop4=value4
+          """));
+    }
+  }
+
+  @Test
+  void shouldLoadAllPropsFromDirImmediately() throws IOException {
+    try (OutputStream logStream = TestingUtil.initLogCaptureStream()) {
+      new PropSubsystem(new String[]{"config=happy/"});
       String log = TestingUtil.asNormalisedTxt(logStream);
       assertTrue(log.startsWith("Loading properties\nLoading properties in files "));
       assertTrue(log.contains("]\n4 properties loaded\n"));
