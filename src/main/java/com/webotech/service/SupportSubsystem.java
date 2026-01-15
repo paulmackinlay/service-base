@@ -23,26 +23,23 @@ import java.lang.ProcessHandle.Info;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * A {@link Subsystem} that helps with 3rd line support by logging important information about the
- * app. This should be among the first subsystems that is used (but after the
- * {@link PropSubsystem}) so that support information is available in the logs as early as
- * possible.
+ * A {@link Subsystem} that helps with 3rd line support by logging important information about the app. This should be among the first
+ * subsystems that is used (but after the {@link PropSubsystem}) so that support information is available in the logs as early as possible.
  * <p>
- * {@link SupportSubsystem#supportData} is logged by default, this contains information about the
- * host, the process and the JVM. Sometimes to diagnose an issue with a process it is important to
- * understand the context in which it is running, this will provide that context. It can be
- * disabled
- * using the {@link SupportSubsystem#PROP_KEY_ENABLE_SUPPORT_DATA_LOGGING} property.
+ * {@link SupportSubsystem#supportData} is logged by default, this contains information about the host, the process and the JVM. Sometimes
+ * to diagnose an issue with a process it is important to understand the context in which it is running, this will provide that context. It
+ * can be disabled using the {@link SupportSubsystem#PROP_KEY_ENABLE_SUPPORT_DATA_LOGGING} property.
  * <p>
- * Deadlock detection is started by default where a dedicated thread checks for deadlocks within
- * the process at a fixed period of 60 seconds. If any are found the details of the locked threads
- * are logged. These properties can be used to control if it is enabled and various other aspects
- * of how it works:
+ * Deadlock detection is started by default where a dedicated thread checks for deadlocks within the process at a fixed period of 60
+ * seconds. If any are found the details of the locked threads are logged. These properties can be used to control if it is enabled and
+ * various other aspects of how it works:
  * <ul>
  * <li>{@link SupportSubsystem#PROP_KEY_ENABLE_DEADLOCK_DETECTION}</li>
  * <li>{@link SupportSubsystem#PROP_KEY_DEADLOCK_DETECTION_PERIOD_ISO8601}</li>
@@ -121,24 +118,22 @@ public class SupportSubsystem<C extends AppContext<?>> implements Subsystem<C> {
    */
   public static final SupportData supportData = new SupportData(hostMap, processMap, jvmMap);
   /**
-   * Property key with expected value of true|false to control if
-   * {@link SupportSubsystem#supportData} is logged. By default it is true.
+   * Property key with expected value of true|false to control if {@link SupportSubsystem#supportData} is logged. By default it is true.
    */
   public static final String PROP_KEY_ENABLE_SUPPORT_DATA_LOGGING = "com.webotech.service.SupportSubsystem.enableSupportDataLogging";
   /**
-   * Property key with expected value of true|false to control if deadlock detection is enabled.
-   * Note that detection will use a dedicated thread to periodically check for deadlocks. By default
-   * it is true.
+   * Property key with expected value of true|false to control if deadlock detection is enabled. Note that detection will use a dedicated
+   * thread to periodically check for deadlocks. By default it is true.
    */
   public static final String PROP_KEY_ENABLE_DEADLOCK_DETECTION = "com.webotech.service.SupportSubsystem.enableDeadlockDetection";
   /**
-   * Property key with expected value of an ISO 8601 formatted time period used to configure the
-   * period between deadlock checks. By default it is set to 60 seconds.
+   * Property key with expected value of an ISO 8601 formatted time period used to configure the period between deadlock checks. By default
+   * it is set to 60 seconds.
    */
   public static final String PROP_KEY_DEADLOCK_DETECTION_PERIOD_ISO8601 = "com.webotech.service.SupportSubsystem.deadlockDetectionPeriodIso8601";
   /**
-   * Property key with expected value of an ISO 8601 formatted time period used to define the
-   * timeout for stopping deadlock detection. By default it is set to 5 seconds.
+   * Property key with expected value of an ISO 8601 formatted time period used to define the timeout for stopping deadlock detection. By
+   * default it is set to 5 seconds.
    */
   public static final String PROP_KEY_STOP_DEADLOCK_DETECTION_TIMEOUT_ISO8601 = "com.webotech.service.SupportSubsystem.stopDeadlockDetectionTimeoutIso8601";
   private final DeadlockDetector deadlockDetector;
@@ -165,6 +160,13 @@ public class SupportSubsystem<C extends AppContext<?>> implements Subsystem<C> {
       String iso8601Timeout = PropertyUtil.getProperty(
           PROP_KEY_STOP_DEADLOCK_DETECTION_TIMEOUT_ISO8601, "PT5S");
       deadlockDetector.stopDetecting(iso8601Timeout);
+    }
+    Set<Thread> runningThreadsSnapshot = Thread.getAllStackTraces().keySet();
+    List<String> nonDaemonThreads = runningThreadsSnapshot.stream().filter(t -> !t.isDaemon()).map(Thread::getName).sorted()
+        .toList();
+    if (nonDaemonThreads.size() > 1) {
+      logger.warn("The following are all non-daemon threads {}. All of them need to be stopped for the application to exit, "
+          + "typically the main thread of an application is the only non-daemon thread.", nonDaemonThreads);
     }
   }
 }

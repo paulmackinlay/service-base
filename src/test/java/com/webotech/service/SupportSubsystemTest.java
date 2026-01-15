@@ -4,6 +4,9 @@
 
 package com.webotech.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.webotech.TestingUtil;
 import com.webotech.service.data.SupportData;
 import com.webotech.util.PropertyUtil;
@@ -14,8 +17,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -90,6 +93,33 @@ class SupportSubsystemTest {
       supportSubsystem.stop(testAppContext);
       String log = TestingUtil.asNormalisedTxt(logStream);
       assertEquals("Shutting down deadlock detection with timeout PT5S\n", log);
+    } finally {
+      PropertyUtil.removeProperty(SupportSubsystem.PROP_KEY_ENABLE_SUPPORT_DATA_LOGGING);
+    }
+  }
+
+  @Test
+  void shouldWarnAboutMultipleNonDaemonThreads() throws IOException {
+    CountDownLatch latch = new CountDownLatch(1);
+    Thread nonDaemonThread = new Thread(() -> {
+      try {
+        latch.await(3, TimeUnit.SECONDS);
+      } catch (InterruptedException e) {
+        throw new IllegalStateException(e);
+      }
+    }, "i_am_bad");
+    nonDaemonThread.setDaemon(false);
+    nonDaemonThread.start();
+    supportSubsystem.start(testAppContext);
+    try (OutputStream logStream = TestingUtil.initLogCaptureStream()) {
+      supportSubsystem.stop(testAppContext);
+      latch.countDown();
+      String[] logs = TestingUtil.asNormalisedTxt(logStream).split("\n");
+      assertEquals("Shutting down deadlock detection with timeout PT5S", logs[0]);
+      assertEquals(
+          "The following are all non-daemon threads [i_am_bad, main]. All of them need to be stopped for the application to exit, "
+              + "typically the main thread of an application is the only non-daemon thread.",
+          logs[1]);
     } finally {
       PropertyUtil.removeProperty(SupportSubsystem.PROP_KEY_ENABLE_SUPPORT_DATA_LOGGING);
     }
