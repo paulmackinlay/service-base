@@ -16,27 +16,27 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+//TODO review docs
+
 /**
- * A {@link Subsystem} that loads properties for use within an application. This should be the
- * first subsystem that is used. Properties can be initialized immediately then the subsystem is
- * constructed or when it is started. Once properties have been initialized, they can be accessed
- * statically using {@link PropertyUtil}. An advantage of properties initialized immediately is
- * that accessing them using {@link PropertyUtil} can be done in the constructor of any objects
- * constructed subsequently.
+ * A {@link Subsystem} that loads properties for use within an application. This should be the first subsystem that is used. Properties can
+ * be initialized immediately then the subsystem is constructed or when it is started. Once properties have been initialized, they can be
+ * accessed statically using {@link PropertyUtil}. An advantage of properties initialized immediately is that accessing them using
+ * {@link PropertyUtil} can be done in the constructor of any objects constructed subsequently.
  * <p>
- * Properties are loaded from one or more files that are defined using a System property with key
- * {@link PropSubsystem#CONFIG_KEY} or a command line argument like
+ * Properties are loaded from one or more files that are defined using a System property with key {@link PropSubsystem#CONFIG_KEY} or a
+ * command line argument like
  * <i>config=config.properties</i>.
  * If both are defined, the System property will override the argument.
  * <p>
- * You can define a single property file, a comma separated list or a directory that contains
- * multiple *.properties files. Note that property file names should contain characters that are
- * alphanumeric or -_. (hyphen, underscore, dot).
+ * You can define a single property file, a comma separated list or a directory that contains multiple *.properties files. Note that
+ * property file names should contain characters that are alphanumeric or -_. (hyphen, underscore, dot).
  * <p> Command line usage using arguments is as follows:
  * <pre>
  *      java MyApp config=prop1.properties
@@ -44,14 +44,12 @@ import org.apache.logging.log4j.Logger;
  *      java MyApp config=config_dir/
  * </pre>
  * <p>
- * Property files will be loaded first as regular files in the filesystem, if they don't exist they
- * will be loaded as internally packaged resources, if they don't exist it will attempt an
- * internally packaged <i>config.properties</i> resource.
+ * Property files will be loaded first as regular files in the filesystem, if they don't exist they will be loaded as internally packaged
+ * resources, if they don't exist it will attempt an internally packaged <i>config.properties</i> resource.
  * <p>
- * Loaded properties are stripped of leading/trailing whitespace and properties with duplicate keys
- * will cause an {@link IllegalStateException}. While loading properties, a System property with
- * the same key will override a property defined in a file - this allows you to override a property
- * using command line.
+ * Loaded properties are stripped of leading/trailing whitespace and properties with duplicate keys will cause an
+ * {@link IllegalStateException}. While loading properties, a System property with the same key will override a property defined in a file -
+ * this allows you to override a property using command line.
  * <p>
  * The following properties allow you to control if and how properties are logged:
  * <ul>
@@ -80,16 +78,15 @@ public class PropSubsystem<C extends AppContext<?>> implements Subsystem<C> {
   static final Pattern propPattern = Pattern.compile(
       "^([a-zA-Z0-9\\.\\-_" + Pattern.quote(File.separator) + "]*)$");
   /**
-   * Property key with expected value of true|false to control if properties are logged after
-   * loading. The default value is true.
+   * Property key with expected value of true|false to control if properties are logged after loading. The default value is true.
    */
   public static final String PROP_KEY_LOG_PROP_VALUES_AFTER_LOAD = "com.webotech.service.PropSubsystem.logPropValuesAfterLoad";
   /**
-   * Property key with expected CSV value containing a list of property keys for which values are
-   * not logged. Generally used to obscure sensitive information in logs.
+   * Property key with expected CSV value containing a list of property keys for which values are not logged. Generally used to obscure
+   * sensitive information in logs.
    */
   public static final String PROP_KEY_EXCLUDE_PROP_LOG_FOR_KEYS_CONTAINING_CSV = "com.webotech.service.PropSubsystem.excludePropLogForKeysContainingCsv";
-  private final boolean initPropsImmediately;
+  private static final AtomicBoolean isPropsInit = new AtomicBoolean(false);
 
   /**
    * Initializes properties based on initArgs during construction
@@ -103,7 +100,6 @@ public class PropSubsystem<C extends AppContext<?>> implements Subsystem<C> {
    * {@link PropSubsystem} starts.
    */
   public PropSubsystem(String[] initArgs, boolean initPropsImmediately) {
-    this.initPropsImmediately = initPropsImmediately;
     if (initPropsImmediately) {
       initProps(initArgs);
     }
@@ -111,16 +107,28 @@ public class PropSubsystem<C extends AppContext<?>> implements Subsystem<C> {
 
   @Override
   public void start(C appContext) {
-    if (!initPropsImmediately) {
-      initProps(appContext.getInitArgs());
+    initProps(appContext.getInitArgs());
+  }
+
+  /**
+   * TODO document this
+   */
+  public static void initProps(String[] initArgs) {
+    if (isPropsInit.compareAndSet(false, true)) {
+      logger.info("Loading properties");
+      List<String> propFiles = determinePropFiles(initArgs);
+      loadProps(propFiles);
+      logProps();
     }
   }
 
-  private static void initProps(String[] initArgs) {
-    logger.info("Loading properties");
-    List<String> propFiles = determinePropFiles(initArgs);
-    loadProps(propFiles);
-    logProps();
+  /**
+   * TODO document this
+   */
+  public static void reset() {
+    if (isPropsInit.compareAndSet(true, false)) {
+      PropertyUtil.getPropertiesCopy().stringPropertyNames().forEach(PropertyUtil::removeProperty);
+    }
   }
 
   private static void logProps() {

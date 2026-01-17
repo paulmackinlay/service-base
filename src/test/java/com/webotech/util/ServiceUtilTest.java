@@ -4,6 +4,18 @@
 
 package com.webotech.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.webotech.TestingUtil;
 import com.webotech.service.PropSubsystem;
 import com.webotech.service.SupportSubsystem;
@@ -11,20 +23,14 @@ import com.webotech.service.TestAppContext;
 import com.webotech.statemachine.service.api.AppService;
 import com.webotech.statemachine.service.api.Subsystem;
 import com.webotech.util.ServiceUtil.BasicAppContext;
+import com.webotech.util.ServiceUtil.Equip;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 class ServiceUtilTest {
 
@@ -35,6 +41,7 @@ class ServiceUtilTest {
   void setup() {
     appService = mock(AppService.class);
     basicAppService = mock(AppService.class);
+    PropSubsystem.reset();
   }
 
   @Test
@@ -75,19 +82,19 @@ class ServiceUtilTest {
     assertSame(basicAppService, basicAppService.getAppContext().getAppService());
   }
 
-
   @Test
   void shouldGetContextWithStandardSubsystems() throws IOException {
     TestAppContext appContext = new TestAppContext("test", new String[0]);
     try (OutputStream logSteam = TestingUtil.initLogCaptureStream()) {
-      appContext = ServiceUtil.equipContext(appContext);
+      appContext = ServiceUtil.preemptAppProps(new String[0]).equipContext(appContext);
       List<Subsystem<TestAppContext>> subsystems = appContext.getSubsystems();
       assertEquals(2, subsystems.size());
       assertInstanceOf(PropSubsystem.class, subsystems.get(0));
       assertInstanceOf(SupportSubsystem.class, subsystems.get(1));
       assertEquals("Loading properties\n"
           + "Loading properties from resource [config.properties]\n"
-          + "0 properties loaded\n"
+          + "1 properties loaded\n"
+          + "key=ok\n"
           + "TestAppContext instrumented with the following Subsystems:\n"
           + "\tcom.webotech.service.PropSubsystem\n"
           + "\tcom.webotech.service.SupportSubsystem\n", TestingUtil.asNormalisedTxt(logSteam));
@@ -126,8 +133,7 @@ class ServiceUtilTest {
     Subsystem<BasicAppContext> subsystem2 = mock(Subsystem.class);
     String appName = "AnApp";
     String[] args = new String[0];
-    BasicAppContext appContext = ServiceUtil.equipBasicContext(appName, args, subsystem1,
-        subsystem2);
+    BasicAppContext appContext = ServiceUtil.equipBasicContext(appName, args, subsystem1, subsystem2);
     assertSame(args, appContext.getInitArgs());
     assertSame(appName, appContext.getAppName());
     List<Subsystem<BasicAppContext>> subsystems = appContext.getSubsystems();
@@ -137,5 +143,28 @@ class ServiceUtilTest {
     assertEquals(SupportSubsystem.class, subsystemClasses.get(1));
     assertSame(subsystem1, subsystems.get(2));
     assertSame(subsystem2, subsystems.get(3));
+  }
+
+  @Test
+  void shouldExecutePreemptiveLogic() {
+    AtomicBoolean isLogicExectued = new AtomicBoolean(false);
+    Runnable preInitLogic = () -> isLogicExectued.set(true);
+    assertFalse(isLogicExectued.get());
+    Equip equip = ServiceUtil.preempt(preInitLogic);
+    assertTrue(isLogicExectued.get());
+    assertNotNull(equip);
+  }
+
+  @Test
+  void shouldPreemptivelyInitializeProps() throws IOException {
+    try (OutputStream logSteam = TestingUtil.initLogCaptureStream()) {
+      Equip equip = ServiceUtil.preemptAppProps(new String[0]);
+      assertNotNull(equip);
+      String log = TestingUtil.asNormalisedTxt(logSteam);
+      assertEquals("Loading properties\n"
+          + "Loading properties from resource [config.properties]\n"
+          + "1 properties loaded\n"
+          + "key=ok\n", log);
+    }
   }
 }

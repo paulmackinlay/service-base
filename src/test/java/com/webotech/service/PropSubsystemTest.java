@@ -4,6 +4,10 @@
 
 package com.webotech.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.webotech.TestingUtil;
 import com.webotech.util.PropertyUtil;
 import java.io.IOException;
@@ -11,9 +15,6 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -25,8 +26,8 @@ class PropSubsystemTest {
   void setup() {
     PropertyUtil.getPropertyAsBoolean("any", false);
     propSubsystem = new PropSubsystem<>(new String[0], false);
-    System.getProperties().keySet().stream().forEach(k -> System.clearProperty(String.valueOf(k)));
-    PropertyUtil.getPropertiesAsMap().keySet().stream().forEach(PropertyUtil::removeProperty);
+    System.getProperties().stringPropertyNames().forEach(System::clearProperty);
+    PropSubsystem.reset();
   }
 
   @Test
@@ -120,28 +121,30 @@ class PropSubsystemTest {
   }
 
   @Test
-  void shouldLoadNoProps() throws IOException {
+  void shouldLoadStandardProps() throws IOException {
     try (OutputStream logStream = TestingUtil.initLogCaptureStream()) {
       propSubsystem.start(new TestAppContext("test", new String[0]));
       String log = TestingUtil.asNormalisedTxt(logStream);
       assertEquals("""
               Loading properties
               Loading properties from resource [config.properties]
-              0 properties loaded
+              1 properties loaded
+              key=ok
               """,
           log);
     }
   }
 
   @Test
-  void shouldLoadNoPropsImmediately() throws IOException {
+  void shouldLoadStandardPropsImmediately() throws IOException {
     try (OutputStream logStream = TestingUtil.initLogCaptureStream()) {
       new PropSubsystem(new String[0]);
       String log = TestingUtil.asNormalisedTxt(logStream);
       assertEquals("""
               Loading properties
               Loading properties from resource [config.properties]
-              0 properties loaded
+              1 properties loaded
+              key=ok
               """,
           log);
     }
