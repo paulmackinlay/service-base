@@ -24,17 +24,18 @@ This project is in [maven central](https://central.sonatype.com/artifact/com.web
 to start using it just add this dependency to your POM.
 
 ```xml
+
 <dependency>
-    <groupId>com.webotech</groupId>
-    <artifactId>service-base</artifactId>
-    <version>0.0.8</version>
+  <groupId>com.webotech</groupId>
+  <artifactId>service-base</artifactId>
+  <version>1.2.1</version>
 </dependency>
 ```
 
 or this dependency in gradle
 
 ```groovy
-implementation 'com.webotech:service-base:0.0.8'
+implementation 'com.webotech:service-base:1.2.1'
 ```
 
 **Please use the latest version available in maven central - the version in this page may be old.**
@@ -42,16 +43,19 @@ implementation 'com.webotech:service-base:0.0.8'
 ## Quick start
 
 - Create a service class that extends `AbstractAppService<BasicAppContext>`
-- Use `ServiceUtil` to provide a `BasicAppContext` equipped with recommended Subsystems
+- Use `ServiceUtil` to pre-emptively initialize application properties before the app is constructed
+  and to provide a `BasicAppContext` equipped with recommended Subsystems
 - The service needs a main method that uses `ServiceUtil` to start it
 
 ### Example App
 
 ```java
+import com.webotech.util.ServiceUtil;
+
 public class ExampleApp extends AbstractAppService<BasicAppContext> {
 
   ExampleApp(String[] args) {
-    super(ServiceUtil.equipBasicContext("ExampleApp", args));
+    super(ServiceUtil.preemptAppProps(args).equipBasicContext("ExampleApp", args));
   }
 
   public static void main(String[] args) {

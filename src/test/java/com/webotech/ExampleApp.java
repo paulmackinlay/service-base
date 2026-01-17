@@ -9,7 +9,6 @@ import com.webotech.util.ServiceUtil;
 import com.webotech.util.ServiceUtil.BasicAppContext;
 import java.util.concurrent.atomic.AtomicReference;
 
-//TODO Is this used in docs? If so get rid of propRef
 public class ExampleApp extends AbstractAppService<BasicAppContext> {
 
   public static final AtomicReference<String> propRef = new AtomicReference<>();

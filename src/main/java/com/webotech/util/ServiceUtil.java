@@ -54,7 +54,6 @@ public class ServiceUtil {
   }
 
   /**
-   * TODO
    * Pre-emptively initializes application properties using {@link PropSubsystem#initProps(String[])} before providing access to the
    * instrumented {@link AppContext} functionality in {@link Equip}.
    */
