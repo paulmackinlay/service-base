@@ -22,13 +22,14 @@ import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-//TODO review docs
-
 /**
- * A {@link Subsystem} that loads properties for use within an application. This should be the first subsystem that is used. Properties can
- * be initialized immediately then the subsystem is constructed or when it is started. Once properties have been initialized, they can be
- * accessed statically using {@link PropertyUtil}. An advantage of properties initialized immediately is that accessing them using
- * {@link PropertyUtil} can be done in the constructor of any objects constructed subsequently.
+ * A {@link Subsystem} that loads properties for use within an application. This should be the first subsystem that is used. Properties are
+ * loaded into memory on initialization which will happen only once. Property initialization can happen before construction by calling
+ * {@link #initProps(String[])}, at construction time when initPropsImmediately=true or when {@link PropSubsystem} starts.
+ * <p>
+ * Once properties have been initialized, they can be accessed statically using {@link PropertyUtil}. An advantage of properties initialized
+ * before construction is that accessing them using {@link PropertyUtil} can be done in the constructor of any objects constructed
+ * subsequently.
  * <p>
  * Properties are loaded from one or more files that are defined using a System property with key {@link PropSubsystem#CONFIG_KEY} or a
  * command line argument like
@@ -36,7 +37,7 @@ import org.apache.logging.log4j.Logger;
  * If both are defined, the System property will override the argument.
  * <p>
  * You can define a single property file, a comma separated list or a directory that contains multiple *.properties files. Note that
- * property file names should contain characters that are alphanumeric or -_. (hyphen, underscore, dot).
+ * property file names should only contain characters that are alphanumeric or -_. (hyphen, underscore, dot).
  * <p> Command line usage using arguments is as follows:
  * <pre>
  *      java MyApp config=prop1.properties
@@ -111,7 +112,7 @@ public class PropSubsystem<C extends AppContext<?>> implements Subsystem<C> {
   }
 
   /**
-   * TODO document this
+   * Initializes app properties strictly one time only by loading them based on the app's arguments.
    */
   public static void initProps(String[] initArgs) {
     if (isPropsInit.compareAndSet(false, true)) {
@@ -123,7 +124,8 @@ public class PropSubsystem<C extends AppContext<?>> implements Subsystem<C> {
   }
 
   /**
-   * TODO document this
+   * Resets initialized app properties so that they can be re-initialized using {@link #initProps(String[])}. Any existing loaded properties
+   * are removed.
    */
   public static void reset() {
     if (isPropsInit.compareAndSet(true, false)) {
