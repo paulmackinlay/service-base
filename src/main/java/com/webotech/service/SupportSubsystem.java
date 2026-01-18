@@ -57,6 +57,10 @@ import org.apache.logging.log4j.Logger;
  * com.webotech.service.SupportSubsystem.deadlockDetectionPeriodIso8601=PT60S
  * com.webotech.service.SupportSubsystem.stopDeadlockDetectionTimeoutIso8601=PT5S
  * </pre>
+ * When the {@link SupportSubsystem} stops it also checks if there is more than one non-daemon thread running, if there is, a warning is
+ * logged. This is because multiple non-daemon threads can prevent an app from exiting since that can only happen if all the non-daemon
+ * threads are stopped first. If there is a single non-daemon thread running it is the thread controlling the app's statemachine which will
+ * stop when the statemachine stops.
  */
 public class SupportSubsystem<C extends AppContext<?>> implements Subsystem<C> {
 
