@@ -3,7 +3,7 @@
 The [state-machine](https://github.com/paulmackinlay/state-machine) has a Service API which provides
 a simple and robust, state machine based framework for creating a standalone app or microservice.
 The Service API is shipped with the state-machine library since it is closely coupled to it's
-implementation, and it is only a lightweight layer on top of it.
+implementation and it is only a lightweight layer on top of it.
 
 [Documentation for the Service API can be found in the service section](https://github.com/paulmackinlay/state-machine/tree/main/docs).
 Here is a quick recap:
@@ -18,20 +18,22 @@ Here is a quick recap:
 The [service-base](https://github.com/paulmackinlay/service-base) library builds upon the service
 API, it contains essential and general functionality which forms the basis of an app. The library is
 a collection of fundamental Subsystems and tools that make creating a standalone app quick and easy.
-The design of the Service API is flexible, so the first cut seeded using service-base can be
-extended and enhanced to any desired level. In short, it's a quick and robust way of building
-anything from a proof of concept to a full-blown enterprise system.
+The design of the Service API is flexible, a 'first cut' app that uses service-base can be extended
+and enhanced to any desired level as the codebase progresses. In short, it's a quick and robust way
+of building anything from a proof of concept to a full-blown enterprise system.
 
 ## Subsystems and utilities
 
-The following Subsystems and utilities are avialable.
+The following Subsystems and utilities are available.
 
 ### [PropSubsystem](../src/main/java/com/webotech/service/PropSubsystem.java) - bootstraps properties
 
 The PropSubsystem initializes Property based configuration that can be used throughout an app.
-Properties are loaded when the Subsystem starts and unloaded when it stops, they can be accessed
-using [PropertyUtil](../src/main/java/com/webotech/util/PropertyUtil.java). There are mechanisms for
-logging, overriding, defaulting and converting properties into useful java constructs.
+Properties can be loaded before the Subsystem is constructed, at construction time or when it
+starts. When loaded at start time, they will also be unloaded when the Subsystem stops. Properties
+can be accessed using [PropertyUtil](../src/main/java/com/webotech/util/PropertyUtil.java) and there
+are mechanisms for logging, overriding, defaulting and converting properties into useful java
+constructs.
 
 ### [SupportSubsystem](../src/main/java/com/webotech/service/SupportSubsystem.java) - logs process fundamentals
 
@@ -49,5 +51,3 @@ Here is a list of the utilities
 - [ArgUtil](../src/main/java/com/webotech/util/ArgUtil.java) - helps with parsing process arguments
 - [ServiceUtil](../src/main/java/com/webotech/util/ServiceUtil.java) - utilities for simplifying how
   an app is bootstrapped
-
-TODO

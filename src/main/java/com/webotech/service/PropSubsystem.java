@@ -88,6 +88,7 @@ public class PropSubsystem<C extends AppContext<?>> implements Subsystem<C> {
    */
   public static final String PROP_KEY_EXCLUDE_PROP_LOG_FOR_KEYS_CONTAINING_CSV = "com.webotech.service.PropSubsystem.excludePropLogForKeysContainingCsv";
   private static final AtomicBoolean isPropsInit = new AtomicBoolean(false);
+  private final AtomicBoolean isPropsLoadedAtStart;
 
   /**
    * Initializes properties based on initArgs during construction
@@ -104,23 +105,27 @@ public class PropSubsystem<C extends AppContext<?>> implements Subsystem<C> {
     if (initPropsImmediately) {
       initProps(initArgs);
     }
+    isPropsLoadedAtStart = new AtomicBoolean();
   }
 
   @Override
   public void start(C appContext) {
-    initProps(appContext.getInitArgs());
+    isPropsLoadedAtStart.set(initProps(appContext.getInitArgs()));
   }
 
   /**
-   * Initializes app properties strictly one time only by loading them based on the app's arguments.
+   * Initializes app properties strictly one time only by loading them based on the app's arguments. Returns true if properties were
+   * loaded.
    */
-  public static void initProps(String[] initArgs) {
+  public static boolean initProps(String[] initArgs) {
     if (isPropsInit.compareAndSet(false, true)) {
       logger.info("Loading properties");
       List<String> propFiles = determinePropFiles(initArgs);
       loadProps(propFiles);
       logProps();
+      return true;
     }
+    return false;
   }
 
   /**
@@ -189,8 +194,10 @@ public class PropSubsystem<C extends AppContext<?>> implements Subsystem<C> {
 
   @Override
   public void stop(C appContext) {
-    logger.info("Unloading properties");
-    PropertyUtil.getPropertiesAsMap().keySet().forEach(PropertyUtil::removeProperty);
+    if (isPropsLoadedAtStart.get()) {
+      logger.info("Unloading properties");
+      PropertyUtil.getPropertiesAsMap().keySet().forEach(PropertyUtil::removeProperty);
+    }
   }
 
   static List<String> parse(String txt) {
